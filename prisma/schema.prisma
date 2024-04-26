@@ -42,7 +42,7 @@ model Transactions {
   updatedAt     DateTime          @updatedAt
   transId       String
   timestamp     Int
-  status        TransactionStatus
+  status        TransactionStatus @default(IN_PROGRESS)
   amount        Float
   Users         Users?            @relation(fields: [usersId], references: [id])
   usersId       String?           @db.ObjectId
@@ -53,4 +53,5 @@ model Transactions {
 enum TransactionStatus {
   CONFIRMED
   FAILED
+  IN_PROGRESS
 }
