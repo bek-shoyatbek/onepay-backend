@@ -37,12 +37,20 @@ model Restaurants {
 }
 
 model Transactions {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  transId       String
+  timestamp     Int
+  status        TransactionStatus
   amount        Float
-  Users         Users?       @relation(fields: [usersId], references: [id])
-  usersId       String?      @db.ObjectId
-  Restaurants   Restaurants? @relation(fields: [restaurantsId], references: [id])
-  restaurantsId String?      @db.ObjectId
+  Users         Users?            @relation(fields: [usersId], references: [id])
+  usersId       String?           @db.ObjectId
+  Restaurants   Restaurants?      @relation(fields: [restaurantsId], references: [id])
+  restaurantsId String?           @db.ObjectId
+}
+
+enum TransactionStatus {
+  CONFIRMED
+  FAILED
 }

@@ -1,8 +1,8 @@
-export class RequestDto {
+export class CheckTransactionDto {
   serviceId: number;
   timestamp: number;
   params: {
-    account: number;
+    account: string;
     [key: string]: any;
   };
 }
