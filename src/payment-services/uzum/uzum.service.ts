@@ -9,6 +9,7 @@ import { ResponseStatus } from './constants/response-status';
 import { ConfirmTransactionDto } from './dto/confirm-transaction.dto';
 import { ReverseTransactionDto } from './dto/reverse-transaction.dto';
 import { CheckTransactionStatusDto } from './dto/check-status.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UzumService {
@@ -31,6 +32,22 @@ export class UzumService {
 
       throw new BadRequestException(errorRes.getResponse());
     }
+
+    const isValidObjectId = ObjectId.isValid(
+      checkTransactionDto.params.account,
+    );
+
+    if (!isValidObjectId) {
+      const errorRes = new ErrorResponseDto(
+        checkTransactionDto.serviceId,
+        new Date().valueOf(),
+        ResponseStatus.Failed,
+        ErrorStatusCode.ErrorCheckingPaymentData,
+      );
+
+      throw new BadRequestException(errorRes.getResponse());
+    }
+
     const isValidUserAccount = await this.prismaService.users.findUnique({
       where: {
         id: checkTransactionDto.params.account,
@@ -71,6 +88,38 @@ export class UzumService {
         new Date().valueOf(),
         ResponseStatus.Failed,
         ErrorStatusCode.InvalidServiceId,
+      );
+
+      throw new BadRequestException(errorRes.getResponse());
+    }
+
+    const isExistingTransactionId =
+      await this.prismaService.transactions.findUnique({
+        where: {
+          transId: createTransactionDto.transId,
+        },
+      });
+
+    if (isExistingTransactionId) {
+      const errorRes = new ErrorResponseDto(
+        createTransactionDto.serviceId,
+        new Date().valueOf(),
+        ResponseStatus.Failed,
+        ErrorStatusCode.ErrorCheckingPaymentData,
+      );
+      throw new BadRequestException(errorRes.getResponse());
+    }
+
+    const isValidObjectId = ObjectId.isValid(
+      createTransactionDto.params.account,
+    );
+
+    if (!isValidObjectId) {
+      const errorRes = new ErrorResponseDto(
+        createTransactionDto.serviceId,
+        new Date().valueOf(),
+        ResponseStatus.Failed,
+        ErrorStatusCode.ErrorCheckingPaymentData,
       );
 
       throw new BadRequestException(errorRes.getResponse());
