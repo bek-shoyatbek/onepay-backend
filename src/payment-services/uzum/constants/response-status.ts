@@ -3,4 +3,6 @@ export const ResponseStatus = {
   Failed: 'FAILED',
   Cancelled: 'CANCELLED',
   Created: 'CREATED',
+  Confirmed: 'CONFIRMED',
+  Reversed: 'REVERSED',
 };

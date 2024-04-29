@@ -3,6 +3,9 @@ import { UzumService } from './uzum.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { ConfirmTransactionDto } from './dto/confirm-transaction.dto';
+import { ReverseTransactionDto } from './dto/reverse-transaction.dto';
+import { CheckTransactionStatusDto } from './dto/check-status.dto';
 
 @Controller('uzum')
 export class UzumController {
@@ -22,19 +25,19 @@ export class UzumController {
 
   @UseGuards(AuthGuard)
   @Post('confirm')
-  async confirm(@Body() reqBody: any) {
-    return await this.uzumService.confirm(reqBody);
+  async confirm(@Body() confirmTransactionDto: ConfirmTransactionDto) {
+    return await this.uzumService.confirm(confirmTransactionDto);
   }
 
   @UseGuards(AuthGuard)
   @Post('reverse')
-  async reverse(@Body() reqBody: any) {
-    return await this.uzumService.reverse(reqBody);
+  async reverse(@Body() reverseTransactionDto: ReverseTransactionDto) {
+    return await this.uzumService.reverse(reverseTransactionDto);
   }
 
   @UseGuards(AuthGuard)
   @Post('status')
-  async status(@Body() reqBody: any) {
-    return await this.uzumService.status(reqBody);
+  async status(@Body() checkTransactionStatusDto: CheckTransactionStatusDto) {
+    return await this.uzumService.status(checkTransactionStatusDto);
   }
 }
