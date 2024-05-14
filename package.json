@@ -29,6 +29,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.13.0",
     "@types/morgan": "^1.9.9",
+    "bcrypt": "^5.1.1",
     "mongodb": "^6.5.0",
     "morgan": "^1.10.0",
     "passport": "^0.7.0",

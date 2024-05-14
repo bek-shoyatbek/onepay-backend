@@ -13,46 +13,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  phone        String?
-  email        String?
-  name         String?
-  transactions Transactions[]
-}
-
 model Restaurants {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  additionalId String?
-  title        String?
-  location     String?
-  imageURL     String?
-  transactions Transactions[]
+  title           String
+  stars           Int
+  image           String
+  backgroundImage String?
 }
 
 model Transactions {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  transId       String            @unique
-  timestamp     Int
-  status        TransactionStatus @default(IN_PROGRESS)
-  amount        Float
-  Users         Users?            @relation(fields: [usersId], references: [id])
-  usersId       String?           @db.ObjectId
-  Restaurants   Restaurants?      @relation(fields: [restaurantsId], references: [id])
-  restaurantsId String?           @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transId     String?           @unique
+  prepareId   Int?
+  performTime DateTime?
+  cancelTime  DateTime?
+  status      TransactionStatus @default(INIT)
+  provider    Provider
+  amount      Float
+  tip         Float
 }
 
 enum TransactionStatus {
-  CONFIRMED
-  FAILED
-  REVERSED
-  IN_PROGRESS
+  INIT
+  PENDING
+  PAID
+  CANCELED
+}
+
+enum Provider {
+  uzum
+  click
+  payme
 }
