@@ -230,8 +230,6 @@ export class ClickService {
       };
     }
 
-    log('click:transactionId', transactionId);
-
     // update payment status
     await this.prismaService.transactions.update({
       where: {
