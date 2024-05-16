@@ -109,6 +109,7 @@ export class PaymeService {
           message: 'Transaction already created',
           data: null,
         };
+
       const currentTime = Date.now();
 
       const expirationTime =
