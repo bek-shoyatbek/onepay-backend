@@ -59,7 +59,6 @@ export class PaymeService {
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
-        status: 'INIT',
       },
     });
 
@@ -78,6 +77,7 @@ export class PaymeService {
         data: null,
       };
     }
+
     return {
       result: {
         allow: true,
@@ -101,6 +101,14 @@ export class PaymeService {
         transId: createTransactionDto.params.id,
       },
     });
+
+    if (preciseAmount !== createTransactionDto.params.amount) {
+      return {
+        code: ErrorStatusCodes.InvalidAmount,
+        message: 'Invalid amount',
+        data: null,
+      };
+    }
 
     if (transaction) {
       if (transaction.status !== 'PENDING')
