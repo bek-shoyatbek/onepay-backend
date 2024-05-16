@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigService } from '@nestjs/config';
 import { ClickError } from 'src/enums/Payment.enum';
+import { log } from 'node:console';
 
 @Injectable()
 export class ClickService {
@@ -102,6 +103,8 @@ export class ClickService {
     }
 
     const time = new Date().getTime();
+
+    log('click:transactionId', transactionId);
 
     await this.prismaService.transactions.update({
       where: {
@@ -214,7 +217,7 @@ export class ClickService {
     if (error > 0) {
       await this.prismaService.transactions.update({
         where: {
-          id: transaction.id,
+          id: transactionId,
         },
         data: {
           status: 'CANCELED',
@@ -227,10 +230,12 @@ export class ClickService {
       };
     }
 
+    log('click:transactionId', transactionId);
+
     // update payment status
     await this.prismaService.transactions.update({
       where: {
-        id: transaction.id,
+        id: transactionId,
       },
       data: {
         status: 'PAID',
