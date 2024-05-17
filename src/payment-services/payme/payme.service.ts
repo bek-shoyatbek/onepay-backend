@@ -7,7 +7,6 @@ import { GetStatementDto } from './dto/get-statement.dto';
 import { CancelTransactionDto } from './dto/cancel-transaction.dto';
 import { PerformTransactionDto } from './dto/perform-transaction.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { ErrorStatusCodes } from './constants/error-status-codes';
 import { TransactionState } from './constants/transaction-state';
 import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { PaymeError } from './constants/payme-error';
@@ -61,7 +60,7 @@ export class PaymeService {
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        transId: transactionId,
+        id: transactionId,
       },
     });
 
@@ -113,7 +112,7 @@ export class PaymeService {
       if (this.checkTransactionExpiration(transaction.createdAt)) {
         await this.prismaService.transactions.update({
           where: {
-            transId,
+            id: transaction.id,
           },
           data: {
             status: 'CANCELED',
