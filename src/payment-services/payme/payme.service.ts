@@ -101,8 +101,8 @@ export class PaymeService {
       },
     });
 
-    if (transaction) {
-      if (transaction.status !== 'PENDING' && transaction.status !== 'INIT') {
+    if (transaction && transaction.status !== 'INIT') {
+      if (transaction.status !== 'PENDING') {
         return {
           error: PaymeError.CantDoOperation,
           id: transId,
