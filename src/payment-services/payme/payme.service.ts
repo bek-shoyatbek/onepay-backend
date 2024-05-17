@@ -102,7 +102,7 @@ export class PaymeService {
     });
 
     if (transaction) {
-      if (transaction.status !== 'PENDING') {
+      if (transaction.state !== TransactionState.Pending) {
         return {
           error: PaymeError.CantDoOperation,
           id: transId,
