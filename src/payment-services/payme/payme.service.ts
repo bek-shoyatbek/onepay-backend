@@ -10,6 +10,9 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ErrorStatusCodes } from './constants/error-status-codes';
 import { TransactionState } from './constants/transaction-state';
 import { CheckTransactionDto } from './dto/check-transaction.dto';
+import { PaymeError } from './constants/payme-error';
+import { DateTime } from 'luxon';
+import { CancelingReasons } from './constants/canceling-reasons';
 
 @Injectable()
 export class PaymeService {
@@ -54,30 +57,25 @@ export class PaymeService {
     checkPerformTransactionDto: CheckPerformTransactionDto,
   ) {
     const transactionId =
-      checkPerformTransactionDto.params?.account?.transactionId;
+      checkPerformTransactionDto.params.account?.transactionId;
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        id: transactionId,
+        transId: transactionId,
       },
     });
 
     if (!transaction) {
       return {
-        code: ErrorStatusCodes.PayerAccountNotFound,
-        message: 'Transaction not found',
-        data: null,
+        error: PaymeError.TransactionNotFound,
       };
     }
 
     if (transaction.amount !== checkPerformTransactionDto.params.amount) {
       return {
-        code: ErrorStatusCodes.InvalidAmount,
-        message: 'Invalid amount',
-        data: null,
+        error: PaymeError.InvalidAmount,
       };
     }
-
     return {
       result: {
         allow: true,
@@ -94,99 +92,91 @@ export class PaymeService {
    * @param {CreateTransactionDto} createTransactionDto
    */
   async createTransaction(createTransactionDto: CreateTransactionDto) {
-    const preciseAmount = Math.floor(createTransactionDto.params.amount / 100);
+    const transactionId = createTransactionDto.params.account?.transactionId;
+
+    const transId = createTransactionDto.params.id;
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        transId: createTransactionDto.params.id,
+        id: transactionId,
       },
     });
 
-    if (preciseAmount !== createTransactionDto.params.amount) {
-      return {
-        code: ErrorStatusCodes.InvalidAmount,
-        message: 'Invalid amount',
-        data: null,
-      };
-    }
-
     if (transaction) {
-      if (transaction.status !== 'PENDING')
+      if (transaction.status !== 'PENDING') {
         return {
-          code: ErrorStatusCodes.OperationCannotBePerformed,
-          message: 'Transaction already created',
-          data: null,
+          error: PaymeError.CantDoOperation,
+          id: transId,
         };
+      }
 
-      const currentTime = Date.now();
-
-      const expirationTime =
-        (currentTime - new Date(transaction.createdAt).getTime()) / 60000 < 12;
-
-      if (!expirationTime) {
+      if (this.checkTransactionExpiration(transaction.createdAt)) {
         await this.prismaService.transactions.update({
           where: {
-            transId: createTransactionDto.params.id,
+            transId,
           },
           data: {
             status: 'CANCELED',
+            cancelTime: new Date(),
+            state: TransactionState.PendingCanceled,
+            reason: CancelingReasons.CanceledDueToTimeout,
           },
         });
+
         return {
-          code: ErrorStatusCodes.OperationCannotBePerformed,
-          message: 'Transaction expired',
-          data: null,
+          error: {
+            ...PaymeError.CantDoOperation,
+            state: TransactionState.PendingCanceled,
+            reason: CancelingReasons.CanceledDueToTimeout,
+          },
+          id: transId,
         };
       }
 
       return {
         result: {
-          current_time: currentTime,
           transaction: transaction.id,
           state: TransactionState.Pending,
+          create_time: new Date(transaction.createdAt).getTime(),
         },
       };
     }
 
-    const existingTransaction = await this.prismaService.transactions.findFirst(
-      {
-        where: {
-          id: createTransactionDto.params?.account?.transactionId,
+    const checkTransaction: CheckPerformTransactionDto = {
+      method: TransactionMethods.CheckPerformTransaction,
+      params: {
+        amount: transaction.amount,
+        account: {
+          transactionId,
         },
       },
-    );
+    };
 
-    if (existingTransaction) {
-      if (existingTransaction.status == 'PAID') {
-        return {
-          code: ErrorStatusCodes.OrderCompleted,
-          message: 'Transaction already created',
-          data: null,
-        };
-      }
-      if (existingTransaction.status === 'PENDING') {
-        return {
-          code: ErrorStatusCodes.OperationCannotBePerformed,
-          message: 'Transaction already created',
-          data: null,
-        };
-      }
+    const checkResult = await this.checkPerformTransaction(checkTransaction);
+
+    if (checkResult.error) {
+      return {
+        error: checkResult.error,
+        id: transId,
+      };
     }
 
-    const newTransaction = await this.prismaService.transactions.update({
-      where: {
-        id: createTransactionDto.params?.account?.transactionId,
-      },
+    const newTransaction = await this.prismaService.transactions.create({
       data: {
-        amount: preciseAmount,
-        status: 'PENDING',
+        transId,
+        tip: transaction.tip,
+        provider: 'payme',
+        state: TransactionState.Pending,
+        amount: createTransactionDto.params.amount,
       },
     });
 
     return {
-      transaction: newTransaction.id,
-      state: TransactionState.Pending,
-      create_time: new Date(newTransaction.createdAt).getTime(),
+      result: {
+        transaction: newTransaction.id,
+        state: TransactionState.Pending,
+        create_time: new Date(newTransaction.createdAt).getTime(),
+      },
     };
   }
 
@@ -197,8 +187,6 @@ export class PaymeService {
    * @param {PerformTransactionDto} performTransactionDto
    */
   async performTransaction(performTransactionDto: PerformTransactionDto) {
-    const currentTime = Date.now();
-
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         transId: performTransactionDto.params.id,
@@ -207,46 +195,55 @@ export class PaymeService {
 
     if (!transaction) {
       return {
-        code: ErrorStatusCodes.TransactionNotFound,
-        message: 'Invalid transaction',
-        data: null,
+        error: PaymeError.TransactionNotFound,
+        id: performTransactionDto.params.id,
       };
     }
 
     if (transaction.status !== 'PENDING') {
       if (transaction.status !== 'PAID') {
         return {
-          code: ErrorStatusCodes.OperationCannotBePerformed,
-          message: 'Transaction already paid',
-          data: null,
+          error: PaymeError.CantDoOperation,
+          id: performTransactionDto.params.id,
         };
       }
 
       return {
-        perform_time: new Date(transaction.updatedAt).getTime(),
-        transaction: transaction.id,
-        state: TransactionState.Paid,
+        result: {
+          state: transaction.state,
+          transaction: transaction.id,
+          perform_time: new Date(transaction.performTime).getTime(),
+        },
       };
     }
 
-    const expirationTime =
-      (currentTime - new Date(transaction.createdAt).getTime()) / 60000 < 12; // 12m
+    const expirationTime = this.checkTransactionExpiration(
+      transaction.createdAt,
+    );
 
-    if (!expirationTime) {
+    if (expirationTime) {
       await this.prismaService.transactions.update({
         where: {
           transId: performTransactionDto.params.id,
         },
         data: {
           status: 'CANCELED',
+          cancelTime: new Date(),
+          state: TransactionState.PendingCanceled,
+          reason: CancelingReasons.CanceledDueToTimeout,
         },
       });
       return {
-        code: ErrorStatusCodes.OperationCannotBePerformed,
-        message: 'Transaction expired',
-        data: null,
+        error: {
+          state: TransactionState.PendingCanceled,
+          reason: CancelingReasons.CanceledDueToTimeout,
+          ...PaymeError.CantDoOperation,
+        },
+        id: performTransactionDto.params.id,
       };
     }
+
+    const performTime = new Date();
 
     const updatedPayment = await this.prismaService.transactions.update({
       where: {
@@ -254,14 +251,16 @@ export class PaymeService {
       },
       data: {
         status: 'PAID',
+        state: TransactionState.Paid,
+        performTime,
       },
     });
 
     return {
       result: {
         transaction: updatedPayment.id,
-        perform_time: new Date(updatedPayment.updatedAt).getTime(),
-        state: 2,
+        perform_time: performTime.getTime(),
+        state: TransactionState.Paid,
       },
     };
   }
@@ -272,25 +271,50 @@ export class PaymeService {
    * @param {CancelTransactionDto} cancelTransactionDto
    */
   async cancelTransaction(cancelTransactionDto: CancelTransactionDto) {
+    const transId = cancelTransactionDto.params.id;
+
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        transId: cancelTransactionDto.params.id,
+        transId,
       },
     });
 
     if (!transaction) {
       return {
-        code: ErrorStatusCodes.TransactionNotFound,
-        message: 'Invalid transaction',
-        data: null,
+        id: transId,
+        error: PaymeError.TransactionNotFound,
       };
     }
 
-    if (transaction.status === 'CANCELED') {
+    if (transaction.status === 'PENDING') {
+      const cancelTransaction = await this.prismaService.transactions.update({
+        where: {
+          id: transaction.id,
+        },
+        data: {
+          status: 'CANCELED',
+          state: TransactionState.PendingCanceled,
+          cancelTime: new Date(),
+          reason: cancelTransactionDto.params.reason,
+        },
+      });
+
       return {
-        code: ErrorStatusCodes.SystemError,
-        message: 'Transaction already cancelled',
-        data: null,
+        result: {
+          cancel_time: cancelTransaction.cancelTime.getTime(),
+          transaction: cancelTransaction.id,
+          state: TransactionState.PendingCanceled,
+        },
+      };
+    }
+
+    if (transaction.state !== TransactionState.Paid) {
+      return {
+        result: {
+          state: transaction.state,
+          transaction: transaction.id,
+          cancel_time: transaction.cancelTime.getTime(),
+        },
       };
     }
 
@@ -300,13 +324,18 @@ export class PaymeService {
       },
       data: {
         status: 'CANCELED',
+        state: TransactionState.PaidCanceled,
+        cancelTime: new Date(),
+        reason: cancelTransactionDto.params.reason,
       },
     });
 
     return {
-      cancel_time: new Date(updatedTransaction.updatedAt).getTime(),
-      transaction: updatedTransaction.id,
-      status: -2,
+      result: {
+        cancel_time: updatedTransaction.cancelTime.getTime(),
+        transaction: updatedTransaction.id,
+        state: TransactionState.PaidCanceled,
+      },
     };
   }
 
@@ -316,17 +345,26 @@ export class PaymeService {
   async checkTransaction(checkTransactionDto: CheckTransactionDto) {
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        id: checkTransactionDto.params.id,
+        transId: checkTransactionDto.params.id,
       },
     });
 
+    if (!transaction) {
+      return {
+        error: PaymeError.TransactionNotFound,
+        id: checkTransactionDto.params.id,
+      };
+    }
+
     return {
-      create_time: new Date(transaction.createdAt).getTime(),
-      perform_time: new Date(transaction.updatedAt).getTime(),
-      cancel_time: 0,
-      transaction: transaction.id,
-      state: 2,
-      reason: null,
+      result: {
+        create_time: transaction.createdAt.getTime(),
+        perform_time: new Date(transaction.performTime).getTime(),
+        cancel_time: new Date(transaction.cancelTime).getTime(),
+        transaction: transaction.id,
+        state: transaction.state,
+        reason: transaction.reason,
+      },
     };
   }
 
@@ -357,14 +395,26 @@ export class PaymeService {
               transactionId: transaction.id,
             },
             create_time: new Date(transaction.createdAt).getTime(),
-            perform_time: new Date(transaction.updatedAt).getTime(),
-            cancel_time: 0,
+            perform_time: new Date(transaction.performTime).getTime(),
+            cancel_time: new Date(transaction.cancelTime).getTime(),
             transaction: transaction.id,
-            state: 2,
-            reason: null,
+            state: transaction.state,
+            reason: transaction.reason || null,
           };
         }),
       },
     };
+  }
+
+  private checkTransactionExpiration(createdAt: Date) {
+    const transactionCreatedAt = new Date(createdAt);
+    const timeoutDuration = 720;
+    const timeoutThreshold = DateTime.now()
+      .minus({
+        minutes: timeoutDuration,
+      })
+      .toJSDate();
+
+    return transactionCreatedAt < timeoutThreshold;
   }
 }

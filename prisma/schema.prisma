@@ -25,14 +25,15 @@ model Restaurants {
 }
 
 model Transactions {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
   transId     String?           @unique
   prepareId   Int?
   performTime DateTime?
   cancelTime  DateTime?
+  state       Int?
+  reason      Int?
   status      TransactionStatus @default(INIT)
   provider    Provider
   amount      Float
