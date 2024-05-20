@@ -91,7 +91,7 @@ export class UzumService {
     info('createTransactionDto', createTransactionDto);
 
     const isExistingTransaction =
-      await this.prismaService.transactions.findUnique({
+      await this.prismaService.transactions.findFirst({
         where: {
           transId: createTransactionDto.transId,
         },
@@ -156,6 +156,7 @@ export class UzumService {
       data: {
         status: 'PENDING',
         provider: 'uzum',
+        createdAt: new Date(),
       },
     });
 
@@ -187,7 +188,7 @@ export class UzumService {
 
     info('confirmTransactionDto', confirmTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: confirmTransactionDto.transId,
       },
@@ -228,7 +229,7 @@ export class UzumService {
 
     await this.prismaService.transactions.update({
       where: {
-        transId: confirmTransactionDto.transId,
+        id: transaction.id,
       },
       data: {
         status: 'PAID',
@@ -260,7 +261,7 @@ export class UzumService {
 
     info('reverseTransactionDto', reverseTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: reverseTransactionDto.transId,
       },
@@ -279,7 +280,7 @@ export class UzumService {
 
     await this.prismaService.transactions.update({
       where: {
-        transId: reverseTransactionDto.transId,
+        id: transaction.id,
       },
       data: {
         status: 'CANCELED',
@@ -309,7 +310,7 @@ export class UzumService {
 
     info('checkTransactionDto', checkTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: checkTransactionDto.transId,
       },
