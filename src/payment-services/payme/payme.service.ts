@@ -160,21 +160,26 @@ export class PaymeService {
       };
     }
 
-    const newTransaction = await this.prismaService.transactions.create({
+    const updatedTransaction = await this.prismaService.transactions.update({
+      where: {
+        id: transactionId,
+      },
       data: {
-        transId,
         tip: transaction.tip,
         provider: 'payme',
-        state: TransactionState.Pending,
         amount: createTransactionDto.params.amount,
+        performTime: new Date(),
+        createdAt: new Date(),
+        status: 'PENDING',
+        state: TransactionState.Pending,
       },
     });
 
     return {
       result: {
-        transaction: newTransaction.id,
-        state: TransactionState.Pending,
-        create_time: new Date(newTransaction.createdAt).getTime(),
+        transaction: updatedTransaction.id,
+        state: updatedTransaction.state,
+        create_time: new Date(updatedTransaction.createdAt).getTime(),
       },
     };
   }
