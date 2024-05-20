@@ -167,6 +167,7 @@ export class PaymeService {
       data: {
         tip: transaction.tip,
         provider: 'payme',
+        transId: createTransactionDto.params.id,
         amount: createTransactionDto.params.amount,
         performTime: new Date(),
         createdAt: new Date(),
@@ -347,6 +348,8 @@ export class PaymeService {
    * @param {CheckTransactionDto} checkTransactionDto
    */
   async checkTransaction(checkTransactionDto: CheckTransactionDto) {
+    const transId = checkTransactionDto.params.id;
+
     const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: checkTransactionDto.params.id,
