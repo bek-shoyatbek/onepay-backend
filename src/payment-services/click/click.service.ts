@@ -89,7 +89,7 @@ export class ClickService {
       };
     }
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: transId,
       },
@@ -166,7 +166,6 @@ export class ClickService {
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
-        transId,
       },
     });
 

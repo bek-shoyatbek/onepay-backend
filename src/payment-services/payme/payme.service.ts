@@ -186,7 +186,7 @@ export class PaymeService {
    * @param {PerformTransactionDto} performTransactionDto
    */
   async performTransaction(performTransactionDto: PerformTransactionDto) {
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: performTransactionDto.params.id,
       },
@@ -223,7 +223,7 @@ export class PaymeService {
     if (expirationTime) {
       await this.prismaService.transactions.update({
         where: {
-          transId: performTransactionDto.params.id,
+          id: transaction.id,
         },
         data: {
           status: 'CANCELED',
@@ -246,7 +246,7 @@ export class PaymeService {
 
     const updatedPayment = await this.prismaService.transactions.update({
       where: {
-        transId: performTransactionDto.params.id,
+        id: transaction.id,
       },
       data: {
         status: 'PAID',
@@ -272,7 +272,7 @@ export class PaymeService {
   async cancelTransaction(cancelTransactionDto: CancelTransactionDto) {
     const transId = cancelTransactionDto.params.id;
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId,
       },
@@ -342,7 +342,7 @@ export class PaymeService {
    * @param {CheckTransactionDto} checkTransactionDto
    */
   async checkTransaction(checkTransactionDto: CheckTransactionDto) {
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: {
         transId: checkTransactionDto.params.id,
       },

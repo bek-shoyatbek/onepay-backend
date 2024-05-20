@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DATABASE_URL=${DATABASE_URL}
+        - PORT=${PORT}
+    command:
+      [
+        sh,
+        -c,
+        "cd /app && echo $DATABASE_URL && npx prisma db push && npx prisma generate&& npm i @nestjs/cli && npm run build && npm run start:prod"
+      ]
+    ports:
+      - '6500:6500'
+    env_file:
+      - .env
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
+    ports:
+      - '6370:6370'
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
