@@ -352,7 +352,7 @@ export class PaymeService {
 
     const transaction = await this.prismaService.transactions.findFirst({
       where: {
-        transId: checkTransactionDto.params.id,
+        transId,
       },
     });
 
@@ -370,7 +370,7 @@ export class PaymeService {
         cancel_time: new Date(transaction.cancelTime).getTime(),
         transaction: transaction.id,
         state: transaction.state,
-        reason: transaction.reason,
+        reason: transaction.reason || null,
       },
     };
   }
