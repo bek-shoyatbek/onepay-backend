@@ -93,6 +93,7 @@ export class PaymeService {
    */
   async createTransaction(createTransactionDto: CreateTransactionDto) {
     const transactionId = createTransactionDto.params.account?.transactionId;
+    const amount = createTransactionDto.params.amount;
 
     if (!ObjectId.isValid(transactionId)) {
       return {
@@ -152,7 +153,7 @@ export class PaymeService {
     const checkTransaction: CheckPerformTransactionDto = {
       method: TransactionMethods.CheckPerformTransaction,
       params: {
-        amount: transaction.amount,
+        amount: amount,
         account: {
           transactionId,
         },
