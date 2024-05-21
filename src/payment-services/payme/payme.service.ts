@@ -169,7 +169,6 @@ export class PaymeService {
         provider: 'payme',
         transId: createTransactionDto.params.id,
         amount: createTransactionDto.params.amount,
-        performTime: new Date(),
         createdAt: new Date(),
         status: 'PENDING',
         state: TransactionState.Pending,
@@ -366,8 +365,8 @@ export class PaymeService {
     return {
       result: {
         create_time: transaction.createdAt.getTime(),
-        perform_time: new Date(transaction.performTime).getTime(),
-        cancel_time: new Date(transaction.cancelTime).getTime(),
+        perform_time: new Date(transaction.performTime).getTime() || 0,
+        cancel_time: new Date(transaction.cancelTime).getTime() || 0,
         transaction: transaction.id,
         state: transaction.state,
         reason: transaction.reason || null,

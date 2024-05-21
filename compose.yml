@@ -12,6 +12,10 @@ services:
         -c,
         "cd /app && echo $DATABASE_URL && npx prisma db push && npx prisma generate&& npm i @nestjs/cli && npm run build && npm run start:prod"
       ]
+    develop:
+      watch:
+        - path: ./src
+          action: rebuild
     ports:
       - '6500:6500'
     env_file:
