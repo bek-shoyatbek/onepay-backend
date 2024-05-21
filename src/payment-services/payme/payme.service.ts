@@ -59,6 +59,12 @@ export class PaymeService {
     const transactionId =
       checkPerformTransactionDto.params.account?.transactionId;
 
+    if (!ObjectId.isValid(transactionId)) {
+      return {
+        error: PaymeError.ProductNotFound,
+      };
+    }
+
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
