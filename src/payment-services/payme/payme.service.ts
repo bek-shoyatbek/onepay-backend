@@ -97,7 +97,7 @@ export class PaymeService {
 
     if (!ObjectId.isValid(transactionId)) {
       return {
-        error: PaymeError.TransactionNotFound,
+        error: PaymeError.ProductNotFound,
         id: createTransactionDto.params.id,
       };
     }
