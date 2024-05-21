@@ -67,7 +67,7 @@ export class PaymeService {
 
     if (!transaction) {
       return {
-        error: PaymeError.TransactionNotFound,
+        error: PaymeError.ProductNotFound,
       };
     }
 
