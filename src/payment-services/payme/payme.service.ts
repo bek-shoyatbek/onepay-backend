@@ -12,6 +12,7 @@ import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PaymeService {
@@ -92,6 +93,13 @@ export class PaymeService {
    */
   async createTransaction(createTransactionDto: CreateTransactionDto) {
     const transactionId = createTransactionDto.params.account?.transactionId;
+
+    if (!ObjectId.isValid(transactionId)) {
+      return {
+        error: PaymeError.TransactionNotFound,
+        id: createTransactionDto.params.id,
+      };
+    }
 
     const transId = createTransactionDto.params.id;
 
