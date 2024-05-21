@@ -161,6 +161,8 @@ export class PaymeService {
 
     const checkResult = await this.checkPerformTransaction(checkTransaction);
 
+    console.log('checkResult', checkResult);
+
     if (checkResult.error) {
       return {
         error: checkResult.error,
