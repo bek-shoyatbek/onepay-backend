@@ -18,10 +18,9 @@ model Restaurants {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  title           String
-  stars           Int
-  image           String
-  backgroundImage String?
+  name             String
+  image            String
+  adminTelegramIds String[] @default([])
 }
 
 model Transactions {

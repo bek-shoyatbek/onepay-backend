@@ -62,6 +62,18 @@ export class UzumService {
       });
     }
 
+    if (transaction.status !== 'INIT') {
+      error('Transaction already exists');
+      throw new BadRequestException({
+        serviceId: checkTransactionDto.serviceId,
+        timestamp: new Date().valueOf(),
+        status: ResponseStatus.Failed,
+        errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
+      });
+    }
+
+    info('Transaction found', transaction);
+
     return {
       serviceId: checkTransactionDto.serviceId,
       timestamp: new Date().valueOf(),
@@ -97,7 +109,7 @@ export class UzumService {
         },
       });
 
-    if (isExistingTransaction) {
+    if (isExistingTransaction && isExistingTransaction.status !== 'INIT') {
       error('Transaction already exists');
       throw new BadRequestException({
         serviceId: createTransactionDto.serviceId,
