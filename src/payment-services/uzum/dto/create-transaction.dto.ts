@@ -4,6 +4,7 @@ export class CreateTransactionDto {
   transId: string;
   params: {
     account: string;
+    transactionId: string;
     [key: string]: any;
   };
   amount: number;
