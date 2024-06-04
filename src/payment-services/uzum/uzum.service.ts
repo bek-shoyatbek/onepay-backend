@@ -134,7 +134,9 @@ export class UzumService {
         errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
       });
     }
+
     log(transaction.amount, createTransactionDto.amount);
+
     const isValidAmount =
       transaction.amount === createTransactionDto.amount / 100; // ! incoming amount is in tiyn
     if (!isValidAmount) {
@@ -230,6 +232,7 @@ export class UzumService {
         id: transaction.id,
       },
       data: {
+        performTime: new Date(),
         status: 'PAID',
       },
     });
@@ -271,7 +274,6 @@ export class UzumService {
         serviceId,
         transId,
         status: ResponseStatus.Failed,
-        reverseTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.AdditionalPaymentPropertyNotFound,
       });
     }
@@ -281,6 +283,7 @@ export class UzumService {
         id: transaction.id,
       },
       data: {
+        cancelTime: new Date(),
         status: 'CANCELED',
       },
     });
