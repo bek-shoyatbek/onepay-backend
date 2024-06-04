@@ -87,14 +87,14 @@ export class UzumService {
   }
 
   async create(createTransactionDto: CreateTransactionDto) {
-    const isValidServiceId = this.checkServiceId(
-      createTransactionDto.serviceId,
-    );
+    const transactionId = createTransactionDto.params.transactionId;
+    const serviceId = createTransactionDto.serviceId;
+    const transId = createTransactionDto.transId;
 
-    if (!isValidServiceId) {
+    if (!this.checkServiceId(serviceId)) {
       error('Invalid service id');
       throw new BadRequestException({
-        serviceId: createTransactionDto.serviceId,
+        serviceId,
         timestamp: new Date().valueOf(),
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
@@ -105,28 +105,14 @@ export class UzumService {
     const isExistingTransaction =
       await this.prismaService.transactions.findFirst({
         where: {
-          transId: createTransactionDto.transId,
+          transId,
         },
       });
 
     if (isExistingTransaction && isExistingTransaction.status !== 'INIT') {
       error('Transaction already exists');
       throw new BadRequestException({
-        serviceId: createTransactionDto.serviceId,
-        timestamp: new Date().valueOf(),
-        status: ResponseStatus.Failed,
-        errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
-      });
-    }
-
-    const isValidObjectId = ObjectId.isValid(
-      createTransactionDto.params.planId,
-    );
-
-    if (!isValidObjectId) {
-      error('Invalid account id');
-      throw new BadRequestException({
-        serviceId: createTransactionDto.serviceId,
+        serviceId,
         timestamp: new Date().valueOf(),
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
@@ -135,14 +121,14 @@ export class UzumService {
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
-        id: createTransactionDto.params.transactionId,
+        id: transactionId,
       },
     });
 
     if (!transaction) {
       error('Invalid transaction id');
       throw new BadRequestException({
-        serviceId: createTransactionDto.serviceId,
+        serviceId,
         timestamp: new Date().valueOf(),
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
@@ -154,7 +140,7 @@ export class UzumService {
     if (!isValidAmount) {
       error('Invalid amount');
       throw new BadRequestException({
-        serviceId: createTransactionDto.serviceId,
+        serviceId,
         timestamp: new Date().valueOf(),
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.ErrorCheckingPaymentData,
@@ -163,7 +149,7 @@ export class UzumService {
 
     await this.prismaService.transactions.update({
       where: {
-        id: createTransactionDto.params.transactionId,
+        id: transactionId,
       },
       data: {
         status: 'PENDING',
@@ -173,25 +159,24 @@ export class UzumService {
     });
 
     return {
-      serviceId: createTransactionDto.serviceId,
+      serviceId,
       timestamp: new Date().valueOf(),
       status: ResponseStatus.Created,
       transTime: new Date().valueOf(),
-      transId: createTransactionDto.transId,
+      transId,
       amount: createTransactionDto.amount,
     };
   }
 
   async confirm(confirmTransactionDto: ConfirmTransactionDto) {
-    const isValidServiceId = this.checkServiceId(
-      confirmTransactionDto.serviceId,
-    );
+    const serviceId = confirmTransactionDto.serviceId;
+    const transId = confirmTransactionDto.transId;
 
-    if (!isValidServiceId) {
+    if (!this.checkServiceId(serviceId)) {
       error('Invalid service id');
       throw new BadRequestException({
-        serviceId: confirmTransactionDto.serviceId,
-        transId: confirmTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         confirmTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.InvalidServiceId,
@@ -202,15 +187,15 @@ export class UzumService {
 
     const transaction = await this.prismaService.transactions.findFirst({
       where: {
-        transId: confirmTransactionDto.transId,
+        transId,
       },
     });
 
     if (!transaction) {
       error('Invalid transaction id');
       throw new BadRequestException({
-        serviceId: confirmTransactionDto.serviceId,
-        transId: confirmTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         confirmTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.AdditionalPaymentPropertyNotFound,
@@ -220,8 +205,8 @@ export class UzumService {
     if (transaction.status !== 'PENDING') {
       error('Payment already processed');
       throw new BadRequestException({
-        serviceId: confirmTransactionDto.serviceId,
-        transId: confirmTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         confirmTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.PaymentAlreadyProcessed,
@@ -231,8 +216,8 @@ export class UzumService {
     if (transaction.provider !== 'uzum') {
       error('Payment already processed');
       throw new BadRequestException({
-        serviceId: confirmTransactionDto.serviceId,
-        transId: confirmTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         confirmTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.PaymentAlreadyProcessed,
@@ -249,22 +234,22 @@ export class UzumService {
     });
 
     return {
-      serviceId: confirmTransactionDto.serviceId,
-      transId: confirmTransactionDto.transId,
+      serviceId,
+      transId,
       status: ResponseStatus.Confirmed,
       confirmTime: new Date().valueOf(),
     };
   }
 
   async reverse(reverseTransactionDto: ReverseTransactionDto) {
-    const isValidServiceId = this.checkServiceId(
-      reverseTransactionDto.serviceId,
-    );
-    if (!isValidServiceId) {
+    const serviceId = reverseTransactionDto.serviceId;
+    const transId = reverseTransactionDto.transId;
+
+    if (!this.checkServiceId(serviceId)) {
       error('Invalid service id');
       throw new BadRequestException({
-        serviceId: reverseTransactionDto.serviceId,
-        transId: reverseTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         reverseTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.InvalidServiceId,
@@ -275,15 +260,15 @@ export class UzumService {
 
     const transaction = await this.prismaService.transactions.findFirst({
       where: {
-        transId: reverseTransactionDto.transId,
+        transId,
       },
     });
 
     if (!transaction) {
       error('Invalid transaction id');
       throw new BadRequestException({
-        serviceId: reverseTransactionDto.serviceId,
-        transId: reverseTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         reverseTime: new Date().valueOf(),
         errorCode: ErrorStatusCode.AdditionalPaymentPropertyNotFound,
@@ -299,8 +284,8 @@ export class UzumService {
       },
     });
     return {
-      serviceId: reverseTransactionDto.serviceId,
-      transId: reverseTransactionDto.transId,
+      serviceId,
+      transId,
       status: ResponseStatus.Reversed,
       reverseTime: new Date().valueOf(),
       amount: transaction.amount,
@@ -308,13 +293,14 @@ export class UzumService {
   }
 
   async status(checkTransactionDto: CheckTransactionStatusDto) {
-    const isValidServiceId = this.checkServiceId(checkTransactionDto.serviceId);
+    const serviceId = checkTransactionDto.serviceId;
+    const transId = checkTransactionDto.transId;
 
-    if (!isValidServiceId) {
+    if (!this.checkServiceId(serviceId)) {
       error('Invalid service id');
       throw new BadRequestException({
-        serviceId: checkTransactionDto.serviceId,
-        transId: checkTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.InvalidServiceId,
       });
@@ -324,22 +310,22 @@ export class UzumService {
 
     const transaction = await this.prismaService.transactions.findFirst({
       where: {
-        transId: checkTransactionDto.transId,
+        transId,
       },
     });
 
     if (!transaction) {
       error('Invalid transaction id');
       throw new BadRequestException({
-        serviceId: checkTransactionDto.serviceId,
-        transId: checkTransactionDto.transId,
+        serviceId,
+        transId,
         status: ResponseStatus.Failed,
         errorCode: ErrorStatusCode.AdditionalPaymentPropertyNotFound,
       });
     }
     return {
-      serviceId: checkTransactionDto.serviceId,
-      transId: checkTransactionDto.transId,
+      serviceId,
+      transId,
       status: transaction.status,
     };
   }
