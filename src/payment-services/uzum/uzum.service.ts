@@ -152,6 +152,7 @@ export class UzumService {
         id: transactionId,
       },
       data: {
+        transId,
         status: 'PENDING',
         provider: 'uzum',
         createdAt: new Date(),
