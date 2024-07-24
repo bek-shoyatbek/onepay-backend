@@ -1,7 +1,7 @@
-export type PaymentParams =
-  | PaymentParamsForClick
-  | PaymentParamsForPayme
-  | PaymentParamsForUzum;
+export interface PaymentParams {
+  transactionId: string;
+  amount: number;
+}
 
 /**
  * For Payme
