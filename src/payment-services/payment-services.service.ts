@@ -15,6 +15,6 @@ export class PaymentServicesService {
       },
     });
 
-    return newTransaction.id;
+    return newTransaction;
   }
 }

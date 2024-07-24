@@ -29,6 +29,8 @@ model Transactions {
   updatedAt   DateTime          @updatedAt
   transId     String?
   prepareId   Int?
+  orderId     String?
+  userId      String?
   performTime DateTime?
   cancelTime  DateTime?
   state       Int?

@@ -19,4 +19,8 @@ export class HashingService {
     hashFunc.update(content);
     return hashFunc.digest('hex');
   }
+
+  public generateBase64Hash(content: string) {
+    return btoa(content);
+  }
 }

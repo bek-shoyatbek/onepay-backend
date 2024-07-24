@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { ClickModule } from './payment-services/click/click.module';
 import { PaymeModule } from './payment-services/payme/payme.module';
 import { PaymentServicesModule } from './payment-services/payment-services.module';
+import { WinstonModule } from 'nest-winston';
+import { loggerConfig } from './configs/logger.config';
+import { RedirectingModule } from './utils/redirecting/redirecting.module';
 
 @Module({
   imports: [
@@ -16,6 +19,8 @@ import { PaymentServicesModule } from './payment-services/payment-services.modul
     AuthModule,
     ConfigModule.forRoot(),
     PaymentServicesModule,
+    WinstonModule.forRoot(loggerConfig),
+    RedirectingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
