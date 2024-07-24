@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 @Injectable()
 export class PaymentServicesService {
   constructor(private readonly prismaService: PrismaService) {}
+
   async initTransaction(initTransactionDto: InitTransactionDto) {
     const newTransaction = await this.prismaService.transactions.create({
       data: {
