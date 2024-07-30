@@ -6,8 +6,8 @@ export class RkeeperController {
   constructor(private readonly rkeeperService: RkeeperService) {}
 
   @Get('/orders/:orderId')
-  async getOrderDetails(@Param('orderId') orderId: string) {
-    return await this.rkeeperService.getOrderDetails(orderId);
+  async getOrderWaiterIdAndStationId(@Param('orderId') orderId: string) {
+    return await this.rkeeperService.getOrderWaiterIdAndStationId(orderId);
   }
 
   @Post('/orders/:orderId/complete')

@@ -3,6 +3,9 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { RKeeperParams } from 'src/types/rkeeper-params';
+import * as https from 'https';
+import { parseString } from 'xml2js';
+import { promisify } from 'util';
 
 @Injectable()
 export class RkeeperService {
@@ -59,12 +62,16 @@ export class RkeeperService {
    * @param orderId string
    * @returns {Promise<any>}
    */
-  async getOrderDetails(orderId: string) {
+  async getOrderWaiterIdAndStationId(orderId: string) {
     const xmlBodyStr = `<RK7Query>
  <RK7Command CMD="GetOrder">
   <Order guid="{${orderId}}"/>
  </RK7Command>
 </RK7Query>`;
+
+    const httpsAgent = new https.Agent({
+      rejectUnauthorized: false,
+    });
     const config = {
       headers: {
         'Content-Type': 'application/xml',
@@ -73,31 +80,39 @@ export class RkeeperService {
         username: this.configService.get('RKEEPER_LOGIN'),
         password: this.configService.get('RKEEPER_PASSWORD'),
       },
-      rejectUnauthorized: false,
+      httpsAgent,
       timeout: 50 * 1000,
     };
 
-    console.log('apiURL', this.apiURL);
-
     const req = this.httpService.post(this.apiURL, xmlBodyStr, config);
-    console.log('req', req);
     const res = await firstValueFrom(req);
-    console.log('res', res);
-    const request = this.httpService
-      .post(this.apiURL, xmlBodyStr, config)
-      .pipe(map((res) => res.data))
-      .pipe(map((data) => data))
-      .pipe(
-        catchError((err) => {
-          console.log('err', err);
-          throw new HttpException(err, 400);
-        }),
-      );
+    const data = res?.data;
 
-    const data = await request.toPromise();
+    if (!data) {
+      throw new HttpException('Error while getting order details', 500);
+    }
 
-    console.log('data', data);
+    const { waiterId, stationId } = await this.getWaiterAndStationId(data);
+    console.log('waiterId', waiterId);
+    console.log('stationId', stationId);
+    return { waiterId, stationId };
+  }
 
-    return data;
+  private async getWaiterAndStationId(xml: string) {
+    const parseXml = promisify(parseString);
+
+    try {
+      const result = await parseXml(xml);
+
+      const order = result.RK7QueryResult.CommandResult[0].Order[0];
+
+      const waiterId = order.Waiter[0].$.id;
+      const stationId = order.Station[0].$.id;
+
+      return { waiterId, stationId };
+    } catch (error) {
+      console.error('Error parsing XML:', error);
+      throw error;
+    }
   }
 }
