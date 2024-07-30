@@ -10,6 +10,9 @@ import { PaymentServicesModule } from './payment-services/payment-services.modul
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './configs/logger.config';
 import { RedirectingModule } from './utils/redirecting/redirecting.module';
+import { RkeeperService } from './rkeeper/rkeeper.service';
+import { RkeeperModule } from './rkeeper/rkeeper.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -21,8 +24,10 @@ import { RedirectingModule } from './utils/redirecting/redirecting.module';
     PaymentServicesModule,
     WinstonModule.forRoot(loggerConfig),
     RedirectingModule,
+    RkeeperModule,
+    HttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RkeeperService],
 })
 export class AppModule {}

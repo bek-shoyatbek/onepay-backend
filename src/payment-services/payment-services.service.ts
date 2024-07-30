@@ -1,4 +1,4 @@
-import { Injectable, Param, Query } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
@@ -34,8 +34,5 @@ export class PaymentServicesService {
     return { url: paymentPageURL };
   }
 
-  async generateURLForRKeeper(params: RKeeperParams) {
-    const UI_URL = this.configService.get('UI_URL');
-    return `${UI_URL}/pay?orderId=${params.guid}&total=${params.amount}&spotId=${params.name}`;
-  }
+
 }
