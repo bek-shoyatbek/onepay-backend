@@ -1,20 +1,36 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { catchError, firstValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { RKeeperParams } from 'src/types/rkeeper-params';
 import * as https from 'https';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
+import { CompleteOrderParams } from './types/complete-order.params';
 
 @Injectable()
 export class RkeeperService {
   private apiURL: string;
+  private axiosConfigs;
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
     this.apiURL = this.configService.get('API_RKEEPER');
+
+    this.axiosConfigs = {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+      auth: {
+        username: this.configService.get('RKEEPER_LOGIN'),
+        password: this.configService.get('RKEEPER_PASSWORD'),
+      },
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false,
+      }),
+      timeout: 50 * 1000,
+    };
   }
 
   /**
@@ -32,27 +48,23 @@ export class RkeeperService {
    * @param orderId string
    * @returns {Promise<boolean>}
    */
-  async completeOrder(orderId: string, amount: number): Promise<boolean> {
+  async completeOrder(
+    completeOrderParams: CompleteOrderParams,
+  ): Promise<boolean> {
     const xmlBodyStr = `<RK7Query>
 	<RK7CMD CMD="PayOrder">
-		<Order guid="{${orderId}}"/>
-		<Cashier code="5"/>
-		<Station code="1"/>
-		<Payment id="1" amount="${amount}"/>
+		<Order guid="{${completeOrderParams.orderId}}"/>
+		<Cashier code="${completeOrderParams.waiterId}"/>
+		<Station code="${completeOrderParams.stationId}"/>
+		<Payment id="1" amount="${completeOrderParams.amount}"/>
 	</RK7CMD>
 </RK7Query>`;
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/xml',
-      },
-      auth: {
-        username: this.configService.get('RKEEPER_LOGIN'),
-        password: this.configService.get('RKEEPER_PASSWORD'),
-      },
-    };
-
-    const { data } = await this.httpService.axiosRef.get(this.apiURL, config);
+    const { data } = await this.httpService.axiosRef.post(
+      this.apiURL,
+      xmlBodyStr,
+      this.axiosConfigs,
+    );
 
     return data;
   }
@@ -69,22 +81,11 @@ export class RkeeperService {
  </RK7Command>
 </RK7Query>`;
 
-    const httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-    const config = {
-      headers: {
-        'Content-Type': 'application/xml',
-      },
-      auth: {
-        username: this.configService.get('RKEEPER_LOGIN'),
-        password: this.configService.get('RKEEPER_PASSWORD'),
-      },
-      httpsAgent,
-      timeout: 50 * 1000,
-    };
-
-    const req = this.httpService.post(this.apiURL, xmlBodyStr, config);
+    const req = this.httpService.post(
+      this.apiURL,
+      xmlBodyStr,
+      this.axiosConfigs,
+    );
     const res = await firstValueFrom(req);
     const data = res?.data;
 
@@ -93,8 +94,6 @@ export class RkeeperService {
     }
 
     const { waiterId, stationId } = await this.getWaiterAndStationId(data);
-    console.log('waiterId', waiterId);
-    console.log('stationId', stationId);
     return { waiterId, stationId };
   }
 
