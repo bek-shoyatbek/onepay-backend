@@ -13,6 +13,8 @@ import { RedirectingModule } from './utils/redirecting/redirecting.module';
 import { RkeeperService } from './rkeeper/rkeeper.service';
 import { RkeeperModule } from './rkeeper/rkeeper.module';
 import { HttpModule } from '@nestjs/axios';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -26,6 +28,9 @@ import { HttpModule } from '@nestjs/axios';
     RedirectingModule,
     RkeeperModule,
     HttpModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'build-ui'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, RkeeperService],
