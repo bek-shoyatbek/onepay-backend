@@ -15,6 +15,7 @@ import { RkeeperModule } from './rkeeper/rkeeper.module';
 import { HttpModule } from '@nestjs/axios';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
+import { BotModule } from './bot/bot.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { join } from 'node:path';
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'build-ui'),
     }),
+    BotModule,
   ],
   controllers: [AppController],
   providers: [AppService, RkeeperService],
