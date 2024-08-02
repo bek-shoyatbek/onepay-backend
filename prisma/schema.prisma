@@ -41,6 +41,38 @@ model Transactions {
   tip         Float
 }
 
+model Waiters {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  restaurantId String
+  waiterId     String
+  phone        String?
+  telegramId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admins {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  restaurantId String
+  adminId      String
+  phone        String?
+  telegramId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TipTransactions {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  amount       Float
+  restaurantId String
+  waiterId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum TransactionStatus {
   INIT
   PENDING

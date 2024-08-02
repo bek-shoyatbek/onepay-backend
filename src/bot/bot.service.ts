@@ -1,54 +1,56 @@
 import { InjectBot } from '@grammyjs/nestjs';
 import { Injectable } from '@nestjs/common';
-import { Bot, Context, InlineKeyboard, SessionFlavor } from 'grammy';
+import { Bot, Context, Keyboard, SessionFlavor } from 'grammy';
+import { PrismaService } from 'src/prisma.service';
 
 interface SessionData {
   registrationStep: number;
   role?: 'admin' | 'waiter';
   userData?: {
-    contactNumber?: string;
+    phone?: string;
     restaurantId?: string;
     id?: string;
-    cardNumber?: string;
   };
   awaitingWaiterSearch?: boolean;
 }
 
-type MyContext = Context & SessionFlavor<SessionData>;
+type MyContext = Context &
+  SessionFlavor<SessionData> & {
+    message?: {
+      text?: string;
+      contact?: {
+        phone_number: string;
+        first_name: string;
+        last_name?: string;
+        user_id?: number;
+      };
+    };
+  };
 
 @Injectable()
 export class BotService {
-  private users: Record<
-    number,
-    {
-      role: 'admin' | 'waiter';
-      contactNumber: string;
-      restaurantId: string;
-      id: string;
-      cardNumber?: string;
-      balance: number;
-      lastTransferDate?: Date;
-    }
-  > = {};
-
-  constructor(@InjectBot() private readonly bot: Bot<MyContext>) {
+  constructor(
+    @InjectBot() private readonly bot: Bot<MyContext>,
+    private prisma: PrismaService,
+  ) {
     this.bot.command('start', this.onStart.bind(this));
     this.bot.on('message', this.handleMessage.bind(this));
-    this.bot.on('callback_query', this.handleCallbackQuery.bind(this));
   }
 
   private async onStart(ctx: MyContext) {
     ctx.session.registrationStep = 1;
     await ctx.reply('Welcome! Are you an admin or a waiter?', {
-      reply_markup: new InlineKeyboard()
-        .text('Admin', 'role_admin')
-        .text('Waiter', 'role_waiter'),
+      reply_markup: new Keyboard()
+        .text('Admin')
+        .text('Waiter')
+        .resized()
+        .oneTime(),
     });
   }
 
   private async handleMessage(ctx: MyContext) {
     const msg = ctx.message?.text;
-    if (!msg) return;
+    const contact = ctx.message?.contact;
 
     if (ctx.session.awaitingWaiterSearch) {
       await this.searchWaiter(ctx, msg);
@@ -56,13 +58,22 @@ export class BotService {
     }
 
     if (!ctx.session.registrationStep) {
-      await this.showMainMenu(ctx);
+      await this.handleMainMenu(ctx, msg);
       return;
     }
 
     switch (ctx.session.registrationStep) {
+      case 1:
+        await this.handleRoleSelection(ctx, msg);
+        break;
       case 2:
-        await this.handleContactNumber(ctx, msg);
+        if (contact) {
+          await this.handleContact(ctx, contact);
+        } else {
+          await ctx.reply(
+            'Please share your contact using the button provided.',
+          );
+        }
         break;
       case 3:
         await this.handleRestaurantId(ctx, msg);
@@ -70,60 +81,40 @@ export class BotService {
       case 4:
         await this.handleId(ctx, msg);
         break;
-      case 5:
-        if (ctx.session.role === 'waiter') {
-          await this.handleCardNumber(ctx, msg);
-        } else {
-          await this.finishRegistration(ctx);
-        }
-        break;
       default:
         await this.finishRegistration(ctx);
     }
   }
 
-  private async handleCallbackQuery(ctx: MyContext) {
-    const callbackData = ctx.callbackQuery?.data;
-    if (!callbackData) return;
-
-    if (callbackData.startsWith('role_')) {
-      await this.handleRoleSelection(ctx, callbackData.split('_')[1]);
-    } else {
-      switch (callbackData) {
-        case 'check_balance':
-          await this.checkBalance(ctx);
-          break;
-        case 'request_transfer':
-          await this.requestTransfer(ctx);
-          break;
-        case 'send_message':
-          await this.promptSendMessage(ctx);
-          break;
-        case 'view_waiters':
-          await this.viewWaiters(ctx);
-          break;
-        case 'search_waiter':
-          await this.promptSearchWaiter(ctx);
-          break;
-      }
-    }
-  }
-
-  private async handleRoleSelection(ctx: MyContext, role: string) {
-    if (role === 'admin' || role === 'waiter') {
-      ctx.session.role = role as 'admin' | 'waiter';
+  private async handleRoleSelection(ctx: MyContext, msg: string) {
+    if (msg === 'Admin' || msg === 'Waiter') {
+      ctx.session.role = msg.toLowerCase() as 'admin' | 'waiter';
       ctx.session.registrationStep = 2;
-      await ctx.answerCallbackQuery();
-      await ctx.reply('Please provide your contact number.');
+      await ctx.reply('Please share your contact information.', {
+        reply_markup: {
+          keyboard: [[{ text: 'Share Contact', request_contact: true }]],
+          resize_keyboard: true,
+          one_time_keyboard: true,
+        },
+      });
     } else {
-      await ctx.answerCallbackQuery('Invalid role selection.');
+      await ctx.reply('Please select either Admin or Waiter.', {
+        reply_markup: new Keyboard()
+          .text('Admin')
+          .text('Waiter')
+          .resized()
+          .oneTime(),
+      });
     }
   }
 
-  private async handleContactNumber(ctx: MyContext, msg: string) {
-    ctx.session.userData = { ...ctx.session.userData, contactNumber: msg };
+  private async handleContact(ctx: MyContext, contact: any) {
+    ctx.session.userData = {
+      ...ctx.session.userData,
+      phone: contact.phone_number,
+    };
     ctx.session.registrationStep = 3;
-    await ctx.reply('Please provide your restaurant ID.');
+    await ctx.reply('Thank you. Now, please provide your restaurant ID.');
   }
 
   private async handleRestaurantId(ctx: MyContext, msg: string) {
@@ -134,30 +125,32 @@ export class BotService {
 
   private async handleId(ctx: MyContext, msg: string) {
     ctx.session.userData = { ...ctx.session.userData, id: msg };
-    if (ctx.session.role === 'waiter') {
-      ctx.session.registrationStep = 5;
-      await ctx.reply('Please provide your card number.');
-    } else {
-      await this.finishRegistration(ctx);
-    }
-  }
-
-  private async handleCardNumber(ctx: MyContext, msg: string) {
-    ctx.session.userData = { ...ctx.session.userData, cardNumber: msg };
     await this.finishRegistration(ctx);
   }
 
   private async finishRegistration(ctx: MyContext) {
     const { role, userData } = ctx.session;
     if (role && userData) {
-      this.users[ctx.from.id] = {
-        role,
-        contactNumber: userData.contactNumber,
-        restaurantId: userData.restaurantId,
-        id: userData.id,
-        cardNumber: userData.cardNumber,
-        balance: 0,
-      };
+      const telegramId = ctx.from.id.toString();
+      if (role === 'waiter') {
+        await this.prisma.waiters.create({
+          data: {
+            restaurantId: userData.restaurantId,
+            waiterId: userData.id,
+            phone: userData.phone,
+            telegramId,
+          },
+        });
+      } else {
+        await this.prisma.admins.create({
+          data: {
+            restaurantId: userData.restaurantId,
+            adminId: userData.id,
+            phone: userData.phone,
+            telegramId,
+          },
+        });
+      }
       delete ctx.session.registrationStep;
       delete ctx.session.userData;
       await ctx.reply('Registration complete. You can now use the bot.');
@@ -166,75 +159,117 @@ export class BotService {
   }
 
   private async showMainMenu(ctx: MyContext) {
-    const user = this.users[ctx.from.id];
-    if (!user) {
+    const telegramId = ctx.from.id.toString();
+    const waiter = await this.prisma.waiters.findFirst({
+      where: { telegramId },
+    });
+    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
+
+    if (!waiter && !admin) {
       await ctx.reply('Please register first by using the /start command.');
       return;
     }
 
-    const keyboard = new InlineKeyboard().text(
-      'Check Balance',
-      'check_balance',
-    );
+    const keyboard = new Keyboard().text('Check Balance');
 
-    if (user.role === 'waiter') {
-      keyboard.text('Request Transfer', 'request_transfer');
-    } else {
+    if (waiter) {
+      keyboard.text('Request Transfer');
+    } else if (admin) {
       keyboard
-        .text('Send Message', 'send_message')
+        .text('Send Message')
         .row()
-        .text('View Waiters', 'view_waiters')
-        .text('Search Waiter', 'search_waiter');
+        .text('View Waiters')
+        .text('Search Waiter');
     }
 
-    await ctx.reply('What would you like to do?', { reply_markup: keyboard });
+    await ctx.reply('What would you like to do?', {
+      reply_markup: keyboard.resized(),
+    });
+  }
+
+  private async handleMainMenu(ctx: MyContext, msg: string) {
+    switch (msg) {
+      case 'Check Balance':
+        await this.checkBalance(ctx);
+        break;
+      case 'Request Transfer':
+        await this.requestTransfer(ctx);
+        break;
+      case 'Send Message':
+        await this.promptSendMessage(ctx);
+        break;
+      case 'View Waiters':
+        await this.viewWaiters(ctx);
+        break;
+      case 'Search Waiter':
+        await this.promptSearchWaiter(ctx);
+        break;
+      default:
+        await ctx.reply(
+          'Unknown command. Please use the provided keyboard buttons.',
+        );
+        await this.showMainMenu(ctx);
+    }
   }
 
   private async checkBalance(ctx: MyContext) {
-    const user = this.users[ctx.from.id];
-    await ctx.answerCallbackQuery();
-    await ctx.reply(`Your current balance is: $${user.balance.toFixed(2)}`);
-    await this.showMainMenu(ctx);
-  }
+    const telegramId = ctx.from.id.toString();
+    const waiter = await this.prisma.waiters.findFirst({
+      where: { telegramId },
+    });
 
-  private async requestTransfer(ctx: MyContext) {
-    const user = this.users[ctx.from.id];
-    await ctx.answerCallbackQuery();
-
-    if (user.role !== 'waiter') {
+    if (!waiter) {
       await ctx.reply('This action is only available for waiters.');
       return;
     }
 
-    const lastTransferDate = user.lastTransferDate || new Date(0);
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    const tips = await this.prisma.tipTransactions.findMany({
+      where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
+    });
 
-    if (lastTransferDate > oneMonthAgo) {
-      await ctx.reply('You can only request a transfer once a month.');
-    } else if (!user.cardNumber) {
-      await ctx.reply('You need to provide a valid card number first.');
-    } else {
-      const admin = Object.values(this.users).find(
-        (u) => u.role === 'admin' && u.restaurantId === user.restaurantId,
-      );
-      if (admin) {
-        await this.bot.api.sendMessage(
-          admin.id,
-          `Waiter ${user.id} has requested a transfer of $${user.balance.toFixed(2)}.`,
-        );
-      }
-      await ctx.reply('Your transfer request has been sent to the admin.');
+    const balance = tips.reduce((sum, tip) => sum + tip.amount, 0);
+
+    await ctx.reply(`Your current balance is: $${balance.toFixed(2)}`);
+    await this.showMainMenu(ctx);
+  }
+
+  private async requestTransfer(ctx: MyContext) {
+    const telegramId = ctx.from.id.toString();
+    const waiter = await this.prisma.waiters.findFirst({
+      where: { telegramId },
+    });
+
+    if (!waiter) {
+      await ctx.reply('This action is only available for waiters.');
+      return;
     }
 
+    const tips = await this.prisma.tipTransactions.findMany({
+      where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
+    });
+
+    const balance = tips.reduce((sum, tip) => sum + tip.amount, 0);
+
+    const admin = await this.prisma.admins.findFirst({
+      where: { restaurantId: waiter.restaurantId },
+    });
+
+    if (admin) {
+      await this.bot.api.sendMessage(
+        admin.telegramId,
+        `Waiter ${waiter.waiterId} has requested a transfer of $${balance.toFixed(2)}.`,
+      );
+    }
+
+    await ctx.reply('Your transfer request has been sent to the admin.');
     await this.showMainMenu(ctx);
   }
 
   private async promptSendMessage(ctx: MyContext) {
-    const user = this.users[ctx.from.id];
-    await ctx.answerCallbackQuery();
+    const telegramId = ctx.from.id.toString();
+    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
 
-    if (user.role !== 'admin') {
+    if (!admin) {
       await ctx.reply('This action is only available for admins.');
       return;
     }
@@ -245,18 +280,17 @@ export class BotService {
   }
 
   private async viewWaiters(ctx: MyContext) {
-    const admin = this.users[ctx.from.id];
-    await ctx.answerCallbackQuery();
+    const telegramId = ctx.from.id.toString();
+    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
 
-    if (admin.role !== 'admin') {
+    if (!admin) {
       await ctx.reply('This action is only available for admins.');
       return;
     }
 
-    const waiters = Object.values(this.users).filter(
-      (user) =>
-        user.role === 'waiter' && user.restaurantId === admin.restaurantId,
-    );
+    const waiters = await this.prisma.waiters.findMany({
+      where: { restaurantId: admin.restaurantId },
+    });
 
     if (waiters.length === 0) {
       await ctx.reply('No waiters found for your restaurant.');
@@ -264,7 +298,7 @@ export class BotService {
       const waiterList = waiters
         .map(
           (waiter) =>
-            `ID: ${waiter.id}, Contact: ${waiter.contactNumber}, Balance: $${waiter.balance.toFixed(2)}`,
+            `ID: ${waiter.waiterId}, Phone: ${waiter.phone || 'Not provided'}`,
         )
         .join('\n');
       await ctx.reply(`Waiters in your restaurant:\n\n${waiterList}`);
@@ -274,29 +308,32 @@ export class BotService {
   }
 
   private async promptSearchWaiter(ctx: MyContext) {
-    await ctx.answerCallbackQuery();
     ctx.session.awaitingWaiterSearch = true;
     await ctx.reply('Please enter the waiter ID you want to search for.');
   }
 
   private async searchWaiter(ctx: MyContext, waiterId: string) {
-    const admin = this.users[ctx.from.id];
+    const telegramId = ctx.from.id.toString();
+    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
 
-    if (admin.role !== 'admin') {
+    if (!admin) {
       await ctx.reply('This action is only available for admins.');
       return;
     }
 
-    const waiter = Object.values(this.users).find(
-      (user) =>
-        user.role === 'waiter' &&
-        user.restaurantId === admin.restaurantId &&
-        user.id === waiterId,
-    );
+    const waiter = await this.prisma.waiters.findFirst({
+      where: { waiterId, restaurantId: admin.restaurantId },
+    });
 
     if (waiter) {
+      const tips = await this.prisma.tipTransactions.findMany({
+        where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
+      });
+
+      const balance = tips.reduce((sum, tip) => sum + tip.amount, 0);
+
       await ctx.reply(
-        `Waiter found:\nID: ${waiter.id}\nContact: ${waiter.contactNumber}\nBalance: $${waiter.balance.toFixed(2)}\nCard Number: ${waiter.cardNumber || 'Not provided'}`,
+        `Waiter found:\nID: ${waiter.waiterId}\nPhone: ${waiter.phone || 'Not provided'}\nBalance: $${balance.toFixed(2)}`,
       );
     } else {
       await ctx.reply('Waiter not found in your restaurant.');
@@ -311,19 +348,28 @@ export class BotService {
     waiterId: string,
     amount: number,
   ) {
-    const waiter = Object.values(this.users).find(
-      (u) =>
-        u.role === 'waiter' &&
-        u.restaurantId === restaurantId &&
-        u.id === waiterId,
-    );
+    const waiter = await this.prisma.waiters.findFirst({
+      where: { waiterId, restaurantId },
+    });
+
     if (waiter) {
-      waiter.balance += amount;
-      await this.bot.api.sendMessage(
-        waiter.id,
-        `You have received $${amount.toFixed(2)}. Your new balance is $${waiter.balance.toFixed(2)}.`,
-      );
-      await this.showMainMenu({ from: { id: waiter.id } } as unknown as MyContext);
+      await this.prisma.tipTransactions.create({
+        data: {
+          amount,
+          restaurantId,
+          waiterId,
+        },
+      });
+
+      if (waiter.telegramId) {
+        await this.bot.api.sendMessage(
+          waiter.telegramId,
+          `You have received a tip of $${amount.toFixed(2)}.`,
+        );
+        await this.showMainMenu({
+          from: { id: parseInt(waiter.telegramId) },
+        } as MyContext);
+      }
     }
   }
 }

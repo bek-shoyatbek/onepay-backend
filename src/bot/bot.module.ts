@@ -3,6 +3,7 @@ import { BotService } from './bot.service';
 import { BotController } from './bot.controller';
 import { GrammyCoreModule } from '@grammyjs/nestjs';
 import { MemorySessionStorage, session } from 'grammy';
+import { PrismaService } from 'src/prisma.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { MemorySessionStorage, session } from 'grammy';
     }),
   ],
   controllers: [BotController],
-  providers: [BotService],
+  providers: [BotService, PrismaService],
 })
 export class BotModule {}
