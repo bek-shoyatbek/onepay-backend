@@ -30,11 +30,11 @@ import { BotModule } from './bot/bot.module';
     RkeeperModule,
     HttpModule,
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'build-ui'),
+      rootPath: join(process.cwd(), 'frontend'),
     }),
     BotModule,
   ],
   controllers: [AppController],
   providers: [AppService, RkeeperService],
 })
-export class AppModule {}
+export class AppModule { }
