@@ -17,6 +17,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { BotModule } from './bot/bot.module';
 
+const frontendAssetsDir = join(process.cwd(), 'frontend');
+console.log("frontend assets directory in app module", frontendAssetsDir);
 @Module({
   imports: [
     UzumModule,
@@ -30,11 +32,13 @@ import { BotModule } from './bot/bot.module';
     RkeeperModule,
     HttpModule,
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'frontend'),
+      rootPath: frontendAssetsDir,
     }),
     BotModule,
   ],
   controllers: [AppController],
   providers: [AppService, RkeeperService],
 })
+
+
 export class AppModule { }
