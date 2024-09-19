@@ -16,7 +16,7 @@ async function bootstrap() {
 
   app.enableCors();
 
-  app.useStaticAssets(join(__dirname, '..', 'build-ui'));
+  app.useStaticAssets(join(__dirname, '..', 'frontend'));
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
