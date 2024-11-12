@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RkeeperService } from './rkeeper.service';
 import { CompleteOrderParams } from './types/complete-order.params';
+import { RKeeperParams } from 'src/types/rkeeper-params';
 
 @Controller('rkeeper')
 export class RkeeperController {
-  constructor(private readonly rkeeperService: RkeeperService) {}
+  constructor(private readonly rkeeperService: RkeeperService) { }
 
   @Get('/orders/:orderId')
   async getOrderWaiterIdAndStationId(@Param('orderId') orderId: string) {
@@ -14,5 +15,10 @@ export class RkeeperController {
   @Post('/orders/complete')
   async completeOrder(@Body() completeOrderDto: CompleteOrderParams) {
     return await this.rkeeperService.completeOrder(completeOrderDto);
+  }
+
+  @Get("/generate-url")
+  async generateURL(@Query() params: RKeeperParams) {
+    return await this.rkeeperService.generateURL(params);
   }
 }

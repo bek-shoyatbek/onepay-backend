@@ -10,13 +10,12 @@ export class PaymentServicesService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly redirectingService: RedirectingService,
-    private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async initTransaction(initTransactionDto: InitTransactionDto) {
     const newTransaction = await this.prismaService.transactions.create({
       data: {
-        amount: initTransactionDto.amount,
+        amount: initTransactionDto.total,
         provider: initTransactionDto.provider,
         tip: initTransactionDto.tip,
         status: 'INIT',
@@ -26,13 +25,12 @@ export class PaymentServicesService {
     const paymentPageURL = this.redirectingService.generateRedirectUrl(
       initTransactionDto.provider,
       {
-        amount: initTransactionDto.amount + initTransactionDto.tip,
+        amount: initTransactionDto.total + initTransactionDto.tip,
         transactionId: newTransaction.id,
       },
     );
 
     return { url: paymentPageURL };
   }
-
 
 }

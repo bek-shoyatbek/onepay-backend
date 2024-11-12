@@ -5,13 +5,20 @@ export class InitTransactionDto {
   @IsNotEmpty()
   @IsString()
   orderId: string;
+
   @IsString()
   userId: string;
+
   @IsNotEmpty()
   @IsNumber()
-  amount: number;
+  total: number;
+
+  @IsString()
+  spotId: string;
+
   @IsNotEmpty()
   provider: PaymentProvider;
+
   @IsNotEmpty()
   @IsNumber()
   tip: number;

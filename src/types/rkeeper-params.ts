@@ -1,5 +1,5 @@
 export interface RKeeperParams {
   guid: string;
-  amount: number;
+  total: number;
   name: string;
 }

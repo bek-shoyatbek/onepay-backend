@@ -40,7 +40,13 @@ export class RkeeperService {
    */
   async generateURL(params: RKeeperParams) {
     const UI_URL = this.configService.get('UI_URL');
-    return `${UI_URL}/pay?orderId=${params.guid}&total=${params.amount}&spotId=${params.name}`;
+    console.log(params);
+    const orderDetails = await this.getOrderWaiterIdAndStationId(params.guid);
+    if (!orderDetails) {
+      throw new HttpException('Error while getting order details', 500);
+    }
+
+    return `${UI_URL}/pay?orderId=${params.guid}&total=${params.total}&spotId=${orderDetails.stationId}&userId=${orderDetails.waiterId}`;
   }
 
   /**
@@ -102,6 +108,7 @@ export class RkeeperService {
 
     try {
       const result = await parseXml(xml);
+
 
       const order = result.RK7QueryResult.CommandResult[0].Order[0];
 

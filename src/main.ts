@@ -27,5 +27,7 @@ async function bootstrap() {
   app.use(morgan('dev'));
 
   await app.listen(PORT);
+
+  console.log("Application running on port: ", PORT);
 }
 bootstrap();
