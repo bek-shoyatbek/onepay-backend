@@ -1,6 +1,6 @@
 export interface CompleteOrderParams {
   orderId: string;
   total: number;
-  stationId: string;
+  spotId: string;
   waiterId: string;
 }

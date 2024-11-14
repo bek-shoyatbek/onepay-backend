@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 6500;
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const frontendAssetsDir = join(__dirname, '..', 'frontend');
-  console.log('frontend assets', frontendAssetsDir);
 
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 

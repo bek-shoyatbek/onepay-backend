@@ -60,8 +60,8 @@ export class RkeeperService {
     const xmlBodyStr = `<RK7Query>
 	<RK7CMD CMD="PayOrder">
 		<Order guid="{${completeOrderParams.orderId}}"/>
-		<Cashier code="${completeOrderParams.waiterId}"/>
-		<Station code="${completeOrderParams.stationId}"/>
+		<Cashier code="7"/>
+		<Station code="7"/>
 		<Payment id="1" amount="${completeOrderParams.total}"/>
 	</RK7CMD>
 </RK7Query>`;
