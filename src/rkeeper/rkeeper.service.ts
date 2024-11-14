@@ -62,7 +62,7 @@ export class RkeeperService {
 		<Order guid="{${completeOrderParams.orderId}}"/>
 		<Cashier code="${completeOrderParams.waiterId}"/>
 		<Station code="${completeOrderParams.stationId}"/>
-		<Payment id="1" amount="${completeOrderParams.amount}"/>
+		<Payment id="1" amount="${completeOrderParams.total}"/>
 	</RK7CMD>
 </RK7Query>`;
 
