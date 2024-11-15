@@ -101,17 +101,14 @@ export class PaymeService {
   async createTransaction(createTransactionDto: CreateTransactionDto) {
     const transactionId = createTransactionDto.params.account?.transactionId;
     const amount = createTransactionDto.params.amount;
+    const transId = createTransactionDto.params.id;
 
     if (!ObjectId.isValid(transactionId)) {
       return {
         error: PaymeError.ProductNotFound,
-        id: createTransactionDto.params.id,
+        id: transId,
       };
     }
-
-    const transId = createTransactionDto.params.id;
-
-    console.log("transactionId", transactionId);
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
@@ -121,54 +118,61 @@ export class PaymeService {
 
     console.log("transaction", transaction);
 
-    if (transaction && transaction.status !== 'INIT') {
-      if (transaction.status !== 'PENDING') {
+    if (transaction) {
+      if (transaction.status === 'PENDING') {
+        if (transId !== transaction.transId) {
+          return {
+            error: PaymeError.CantDoOperation,
+            id: transId,
+          };
+        }
+
+        if (this.checkTransactionExpiration(transaction.createdAt)) {
+          await this.prismaService.transactions.update({
+            where: {
+              id: transaction.id,
+            },
+            data: {
+              status: 'CANCELED',
+              cancelTime: new Date(),
+              state: TransactionState.PendingCanceled,
+              reason: CancelingReasons.CanceledDueToTimeout,
+            },
+          });
+
+          return {
+            error: {
+              ...PaymeError.CantDoOperation,
+              state: TransactionState.PendingCanceled,
+              reason: CancelingReasons.CanceledDueToTimeout,
+            },
+            id: transId,
+          };
+        }
+
+        return {
+          result: {
+            transaction: transaction.id,
+            state: TransactionState.Pending,
+            create_time: new Date(transaction.createdAt).getTime(),
+            receivers: [
+              {
+                "id": "5305e3bab097f420a62ced0b",
+                "amount": Math.floor(transaction.amount / 2),
+              },
+              {
+                "id": "4215e6bab097f420a62ced01",
+                "amount": Math.floor(transaction.amount / 2),
+              }
+            ],
+          },
+        };
+      } else if (transaction.status !== 'INIT') {
         return {
           error: PaymeError.CantDoOperation,
           id: transId,
         };
       }
-
-      if (this.checkTransactionExpiration(transaction.createdAt)) {
-        await this.prismaService.transactions.update({
-          where: {
-            id: transaction.id,
-          },
-          data: {
-            status: 'CANCELED',
-            cancelTime: new Date(),
-            state: TransactionState.PendingCanceled,
-            reason: CancelingReasons.CanceledDueToTimeout,
-          },
-        });
-
-        return {
-          error: {
-            ...PaymeError.CantDoOperation,
-            state: TransactionState.PendingCanceled,
-            reason: CancelingReasons.CanceledDueToTimeout,
-          },
-          id: transId,
-        };
-      }
-
-      return {
-        result: {
-          transaction: transaction.id,
-          state: TransactionState.Pending,
-          create_time: new Date(transaction.createdAt).getTime(),
-          receivers: [
-            {
-              "id": "5305e3bab097f420a62ced0b",
-              "amount": Math.floor(transaction.amount / 2),
-            },
-            {
-              "id": "4215e6bab097f420a62ced01",
-              "amount": Math.floor(transaction.amount / 2),
-            }
-          ],
-        },
-      };
     }
 
     const checkTransaction: CheckPerformTransactionDto = {
@@ -182,7 +186,6 @@ export class PaymeService {
     };
 
     const checkResult = await this.checkPerformTransaction(checkTransaction);
-
 
     if (checkResult.error) {
       return {
@@ -198,8 +201,8 @@ export class PaymeService {
       data: {
         tip: transaction.tip,
         provider: 'payme',
-        transId: createTransactionDto.params.id,
-        amount: createTransactionDto.params.amount,
+        transId: transId,
+        amount: amount,
         createdAt: new Date(),
         status: 'PENDING',
         state: TransactionState.Pending,
@@ -214,11 +217,11 @@ export class PaymeService {
         receivers: [
           {
             "id": "5305e3bab097f420a62ced0b",
-            "amount": Math.floor(transaction.amount / 2),
+            "amount": Math.floor(amount / 2),
           },
           {
             "id": "4215e6bab097f420a62ced01",
-            "amount": Math.floor(transaction.amount / 2),
+            "amount": Math.floor(amount / 2),
           }
         ],
       },
