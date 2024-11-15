@@ -116,7 +116,6 @@ export class PaymeService {
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
-        transId,
       },
     });
 
