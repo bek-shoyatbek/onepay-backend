@@ -20,7 +20,6 @@ import { APP_FILTER } from '@nestjs/core';
 import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
-console.log("frontend assets directory in app module", frontendAssetsDir);
 @Module({
   imports: [
     UzumModule,

@@ -5,6 +5,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { HttpExceptionFilter } from './http/http.filter';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as morgan from 'morgan';
 
 const PORT = process.env.PORT || 6500;
 
@@ -13,6 +14,8 @@ async function bootstrap() {
   const frontendAssetsDir = join(__dirname, '..', 'frontend');
 
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+
+  app.use(morgan('dev'));
 
   app.enableCors();
 
