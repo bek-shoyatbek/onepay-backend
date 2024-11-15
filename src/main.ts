@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './http/http.filter';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import morgan from 'morgan';
+import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
 
 const PORT = process.env.PORT || 6500;
 
@@ -22,6 +23,7 @@ async function bootstrap() {
   app.useStaticAssets(frontendAssetsDir);
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new InternalServerErrorExceptionFilter());
 
   app.setGlobalPrefix('api/v1');
 
