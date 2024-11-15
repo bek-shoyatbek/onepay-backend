@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
-import { RKeeperParams } from 'src/types/rkeeper-params';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PaymentServicesService {
@@ -17,11 +15,14 @@ export class PaymentServicesService {
       data: {
         amount: initTransactionDto.total,
         provider: initTransactionDto.provider,
+        userId: initTransactionDto.userId,
+        orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
         status: 'INIT',
       },
     });
 
+    console.log("newTransaction: ", newTransaction);
     const paymentPageURL = this.redirectingService.generateRedirectUrl(
       initTransactionDto.provider,
       {
