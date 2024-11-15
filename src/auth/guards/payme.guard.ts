@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 
 @Injectable()
 export class PaymeBasicAuthGuard implements CanActivate {
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -20,6 +20,8 @@ export class PaymeBasicAuthGuard implements CanActivate {
       });
       return;
     }
+
+
     try {
       const decoded = this.decodeToken(token);
       if (!decoded) {
@@ -33,10 +35,8 @@ export class PaymeBasicAuthGuard implements CanActivate {
         return;
       }
 
-      console.log('decoded', decoded);
       const [username, password] = decoded.split(':');
 
-      console.log('username', username, 'password', password);
       console.log(this.configService.get<string>('PAYME_LOGIN'));
       console.log(this.configService.get<string>('PAYME_PASSWORD_TEST'));
 

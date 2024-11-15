@@ -17,7 +17,7 @@ import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PaymeService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;
@@ -169,7 +169,6 @@ export class PaymeService {
 
     const checkResult = await this.checkPerformTransaction(checkTransaction);
 
-    console.log('checkResult', checkResult);
 
     if (checkResult.error) {
       return {

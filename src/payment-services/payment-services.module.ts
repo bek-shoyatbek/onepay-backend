@@ -17,7 +17,6 @@ import { HttpModule, HttpService } from '@nestjs/axios';
     PrismaService,
     RedirectingService,
     HashingService,
-    RkeeperService,
   ],
 })
-export class PaymentServicesModule {}
+export class PaymentServicesModule { }
