@@ -153,6 +153,16 @@ export class PaymeService {
           transaction: transaction.id,
           state: TransactionState.Pending,
           create_time: new Date(transaction.createdAt).getTime(),
+          receivers: [
+            {
+              "id": "5305e3bab097f420a62ced0b",
+              "amount": Math.floor(transaction.amount / 2),
+            },
+            {
+              "id": "4215e6bab097f420a62ced01",
+              "amount": Math.floor(transaction.amount / 2),
+            }
+          ],
         },
       };
     }
