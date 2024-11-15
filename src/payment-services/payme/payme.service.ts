@@ -111,12 +111,16 @@ export class PaymeService {
 
     const transId = createTransactionDto.params.id;
 
+    console.log("transactionId", transactionId);
+
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
         transId,
       },
     });
+
+    console.log("transaction", transaction);
 
     if (transaction && transaction.status !== 'INIT') {
       if (transaction.status !== 'PENDING') {
