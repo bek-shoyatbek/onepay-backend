@@ -25,9 +25,8 @@ export default class InternalServerErrorExceptionFilter implements ExceptionFilt
             res.status(exception.getStatus()).json(exception.getResponse());
             return;
         }
-        // other error to rewirte InternalServerErrorException response
 
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        const response = {
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             timestamp: new Date().toISOString(),
             path: req.url,
@@ -35,6 +34,10 @@ export default class InternalServerErrorExceptionFilter implements ExceptionFilt
             stack: errStack,
             name: errName,
             status: statusName
-        });
+        };
+
+        console.error(response);
+
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(response);
     }
 }
