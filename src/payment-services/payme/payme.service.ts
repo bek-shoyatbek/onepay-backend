@@ -122,7 +122,7 @@ export class PaymeService {
       if (transaction.status === 'PENDING') {
         if (transId !== transaction.transId) {
           return {
-            error: PaymeError.CantDoOperation,
+            error: PaymeError.Pending,
             id: transId,
           };
         }
@@ -142,7 +142,7 @@ export class PaymeService {
 
           return {
             error: {
-              ...PaymeError.Pending,
+              ...PaymeError.CantDoOperation,
               state: TransactionState.PendingCanceled,
               reason: CancelingReasons.CanceledDueToTimeout,
             },
