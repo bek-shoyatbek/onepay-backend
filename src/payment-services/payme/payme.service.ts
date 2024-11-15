@@ -142,7 +142,7 @@ export class PaymeService {
 
           return {
             error: {
-              ...PaymeError.CantDoOperation,
+              ...PaymeError.Pending,
               state: TransactionState.PendingCanceled,
               reason: CancelingReasons.CanceledDueToTimeout,
             },
