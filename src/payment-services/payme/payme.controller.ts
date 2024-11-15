@@ -21,6 +21,8 @@ export class PaymeController {
   @UseGuards(PaymeBasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async handleTransactionMethods(@Body() reqBody: RequestBody, @Res() res: Response) {
+
+    console.log("reqBody: ", reqBody);
     const result = await this.paymeService.handleTransactionMethods(reqBody);
 
     res.status(HttpStatus.OK).send(result);
