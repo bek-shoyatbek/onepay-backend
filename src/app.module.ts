@@ -16,6 +16,8 @@ import { HttpModule } from '@nestjs/axios';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { BotModule } from './bot/bot.module';
+import { APP_FILTER } from '@nestjs/core';
+import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
 console.log("frontend assets directory in app module", frontendAssetsDir);
@@ -37,7 +39,12 @@ console.log("frontend assets directory in app module", frontendAssetsDir);
     BotModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RkeeperService],
+  providers: [AppService, RkeeperService,
+    {
+      provide: APP_FILTER,
+      useClass: InternalServerErrorExceptionFilter
+    }
+  ],
 })
 
 
