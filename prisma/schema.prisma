@@ -14,19 +14,17 @@ datasource db {
 }
 
 model Restaurants {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   image            String
   adminTelegramIds String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Transactions {
   id          String            @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
   transId     String?
   prepareId   Int?
   orderId     String?
@@ -37,8 +35,12 @@ model Transactions {
   reason      Int?
   status      TransactionStatus @default(INIT)
   provider    Provider
+  terminal    Terminal
   amount      Float
   tip         Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Waiters {
@@ -84,4 +86,10 @@ enum Provider {
   uzum
   click
   payme
+}
+
+enum Terminal {
+  poster
+  rkeeper
+  iiko
 }

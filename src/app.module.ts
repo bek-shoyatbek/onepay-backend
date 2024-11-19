@@ -17,6 +17,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { BotModule } from './bot/bot.module';
 import { APP_FILTER } from '@nestjs/core';
+import { PosterModule } from './poster/poster.module';
 import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
@@ -36,6 +37,7 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
       rootPath: frontendAssetsDir,
     }),
     BotModule,
+    PosterModule,
   ],
   controllers: [AppController],
   providers: [AppService, RkeeperService,

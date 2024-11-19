@@ -10,8 +10,6 @@ export class AppController {
 
   @Get()
   getPaymentPage(@Res() res: Response) {
-    const pathToIndexHTML = join(process.cwd(), 'frontend', 'index.html');
-    console.log(pathToIndexHTML);
     return res.sendFile(join(process.cwd(), 'frontend', 'index.html'));
   }
 }

@@ -18,6 +18,7 @@ export class PaymentServicesService {
         userId: initTransactionDto.userId,
         orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
+        terminal: initTransactionDto.terminal,
         status: 'INIT',
       },
     });
