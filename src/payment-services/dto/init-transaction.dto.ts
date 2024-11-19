@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Terminal } from 'src/constants/terminal.constant';
 import { PaymentProvider } from 'src/types/payment-providers';
@@ -21,6 +22,7 @@ export class InitTransactionDto {
   provider: PaymentProvider;
 
   @IsNotEmpty()
+  @Transform(({ value }) => ("" + value).toLowerCase())
   @IsEnum(Terminal)
   terminal: Terminal;
 
