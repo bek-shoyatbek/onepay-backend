@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
+import { Terminal } from '@prisma/client';
 
 @Injectable()
 export class PaymentServicesService {
@@ -19,7 +20,7 @@ export class PaymentServicesService {
         userId: initTransactionDto.userId,
         orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
-        terminal: initTransactionDto.terminal,
+        terminal: initTransactionDto.terminal as Terminal,
         spotId: initTransactionDto.spotId,
         tableId: initTransactionDto?.tableId || null,
         status: 'INIT',
