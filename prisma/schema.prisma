@@ -1,50 +1,51 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Restaurants {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  id               String   @id @default(uuid())
   name             String
   image            String
-  adminTelegramIds String[] @default([])
+  adminTelegramIds String[] // Postgres supports arrays natively
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations (optional)
+  waiters Waiters[]
+  admins  Admins[]
+  tips    TipTransactions[]
 }
 
 model Transactions {
-  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  id       String            @id @default(uuid())
+  orderId  String
+  userId   String
+  status   TransactionStatus @default(INIT)
+  provider Provider
+  terminal Terminal
+  amount   Float
+  tip      Float
+
+  tableId     String?
   transId     String?
   prepareId   Int?
-  orderId     String?
-  userId      String?
   performTime DateTime?
   cancelTime  DateTime?
   state       Int?
   reason      Int?
-  status      TransactionStatus @default(INIT)
-  provider    Provider
-  terminal    Terminal
-  amount      Float
-  tip         Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Waiters {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  id           String  @id @default(uuid())
   restaurantId String
   waiterId     String
   phone        String?
@@ -52,10 +53,17 @@ model Waiters {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relation to restaurant
+  restaurant Restaurants       @relation(fields: [restaurantId], references: [id])
+  // Relation to tip transactions
+  tips       TipTransactions[]
+
+  @@index([restaurantId])
 }
 
 model Admins {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  id           String  @id @default(uuid())
   restaurantId String
   adminId      String
   phone        String?
@@ -63,16 +71,28 @@ model Admins {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relation to restaurant
+  restaurant Restaurants @relation(fields: [restaurantId], references: [id])
+
+  @@index([restaurantId])
 }
 
 model TipTransactions {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(uuid())
   amount       Float
   restaurantId String
   waiterId     String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurants @relation(fields: [restaurantId], references: [id])
+  waiter     Waiters     @relation(fields: [waiterId], references: [id])
+
+  @@index([restaurantId])
+  @@index([waiterId])
 }
 
 enum TransactionStatus {
