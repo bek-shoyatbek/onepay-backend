@@ -13,11 +13,13 @@ import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
 import { ObjectId } from 'mongodb';
+import { RkeeperService } from 'src/rkeeper/rkeeper.service';
+import { CompleteOrderParams } from 'src/rkeeper/types/complete-order.params';
 
 
 @Injectable()
 export class PaymeService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService, private readonly rkeeperService: RkeeperService) { }
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;
@@ -305,6 +307,16 @@ export class PaymeService {
         performTime,
       },
     });
+
+    if (transaction.terminal === "rkeeper") {
+      const rKeeperParams: CompleteOrderParams = {
+        orderId: transaction.orderId,
+        total: transaction.amount,
+        userId: transaction.userId,
+        spotId: transaction.spotId,
+      };
+    }
+
 
     return {
       result: {

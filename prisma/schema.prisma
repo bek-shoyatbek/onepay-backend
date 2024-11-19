@@ -26,6 +26,7 @@ model Transactions {
   id       String            @id @default(uuid())
   orderId  String
   userId   String
+  spotId   String?
   status   TransactionStatus @default(INIT)
   provider Provider
   terminal Terminal

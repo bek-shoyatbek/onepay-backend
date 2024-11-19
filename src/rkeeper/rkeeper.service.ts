@@ -33,11 +33,7 @@ export class RkeeperService {
     };
   }
 
-  /**
-   * This function generates a URL for r_keeper terminal to generate qrcode to the client side of our payment page
-   * @param params {RkeeperParams}
-   * @returns {Promise<string>}
-   */
+
   async generateURL(params: RKeeperParams) {
     const UI_URL = this.configService.get('UI_URL');
     console.log(params);

@@ -19,6 +19,7 @@ export class PaymentServicesService {
         orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
         terminal: initTransactionDto.terminal,
+        spotId: initTransactionDto.spotId,
         tableId: initTransactionDto?.tableId || null,
         status: 'INIT',
       },
