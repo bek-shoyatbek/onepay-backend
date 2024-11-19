@@ -11,6 +11,7 @@ export class PaymentServicesService {
   ) { }
 
   async initTransaction(initTransactionDto: InitTransactionDto) {
+    console.log("initTransactionDto: ", initTransactionDto);
     const newTransaction = await this.prismaService.transactions.create({
       data: {
         amount: initTransactionDto.total + initTransactionDto.tip,
