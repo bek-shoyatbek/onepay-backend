@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { TransactionMethods } from './constants/transaction-methods';
 import { CheckPerformTransactionDto } from './dto/check-perform-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -295,6 +295,26 @@ export class PaymeService {
       };
     }
 
+    if (transaction.terminal === "rkeeper") {
+      const rKeeperParams: CompleteOrderParams = {
+        orderId: transaction.orderId,
+        total: transaction.amount,
+        userId: transaction.userId,
+        spotId: transaction.spotId,
+      };
+
+      const isOrderCompleted = await this.rkeeperService.completeOrder(rKeeperParams);
+
+      if (!isOrderCompleted) {
+        throw new InternalServerErrorException("Order completion failed");
+      }
+
+    } else if (transaction.terminal === "iiko") {
+      console.log("iiko order completed")
+    } else if (transaction.terminal === "poster") {
+      console.log("poster order completed")
+    }
+
     const performTime = new Date();
 
     const updatedPayment = await this.prismaService.transactions.update({
@@ -308,14 +328,7 @@ export class PaymeService {
       },
     });
 
-    if (transaction.terminal === "rkeeper") {
-      const rKeeperParams: CompleteOrderParams = {
-        orderId: transaction.orderId,
-        total: transaction.amount,
-        userId: transaction.userId,
-        spotId: transaction.spotId,
-      };
-    }
+
 
 
     return {
