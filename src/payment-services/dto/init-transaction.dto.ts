@@ -21,7 +21,7 @@ export class InitTransactionDto {
   provider: PaymentProvider;
 
   @IsNotEmpty()
-  @IsEnum({ type: Terminal })
+  @IsEnum(Terminal)
   terminal: Terminal;
 
   @IsString()
