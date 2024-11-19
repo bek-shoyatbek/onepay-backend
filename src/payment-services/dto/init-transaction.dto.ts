@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Terminal } from 'src/constants/terminal.constant';
 import { PaymentProvider } from 'src/types/payment-providers';
 
@@ -22,6 +22,10 @@ export class InitTransactionDto {
 
   @IsString()
   terminal: Terminal;
+
+  @IsString()
+  @IsOptional()
+  tableId?: string;
 
   @IsNotEmpty()
   @IsNumber()
