@@ -28,7 +28,7 @@ model Transactions {
   userId   String
   spotId   String?
   status   TransactionStatus @default(INIT)
-  provider Provider
+  provider PaymentProvider
   terminal Terminal
   amount   Float
   tip      Float
@@ -103,7 +103,7 @@ enum TransactionStatus {
   CANCELED
 }
 
-enum Provider {
+enum PaymentProvider {
   uzum
   click
   payme
