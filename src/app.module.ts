@@ -36,7 +36,7 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
     ServeStaticModule.forRoot({
       rootPath: frontendAssetsDir,
     }),
-    BotModule,
+    // BotModule,
     PosterModule,
   ],
   controllers: [AppController],
