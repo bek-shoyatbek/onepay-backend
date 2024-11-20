@@ -62,6 +62,7 @@ export class PaymeService {
     const transactionId =
       checkPerformTransactionDto.params.account?.transactionId;
 
+    console.log("transactionId: ", transactionId);
     if (!ObjectId.isValid(transactionId)) {
       return {
         error: PaymeError.ProductNotFound,
@@ -73,6 +74,7 @@ export class PaymeService {
         id: transactionId,
       },
     });
+    console.log("transaction: ", transaction);
 
     if (!transaction) {
       return {
