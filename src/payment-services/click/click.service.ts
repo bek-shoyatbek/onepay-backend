@@ -5,8 +5,8 @@ import { ObjectId } from 'mongodb';
 import { PrismaService } from 'src/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigService } from '@nestjs/config';
-import { ClickError } from 'src/enums/payment.enum';
 import { log } from 'node:console';
+import { ClickError } from 'src/enums';
 
 @Injectable()
 export class ClickService {
@@ -14,7 +14,7 @@ export class ClickService {
     private readonly prismaService: PrismaService,
     private readonly hashingService: HashingService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async handleMerchantTransactions(clickReqBody: ClickRequestDto) {
     const actionType = +clickReqBody.action;
