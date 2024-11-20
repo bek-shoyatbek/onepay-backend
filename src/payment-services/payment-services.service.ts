@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
-import { Terminal } from '@prisma/client';
+import { Terminal } from 'src/enums';
 
 @Injectable()
 export class PaymentServicesService {
