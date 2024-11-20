@@ -1,6 +1,5 @@
-import { PaymentProvider, Terminal } from '@prisma/client';
-import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { PaymentProvider, Terminal } from 'src/enums';
 
 export class InitTransactionDto {
   @IsNotEmpty()
