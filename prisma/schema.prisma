@@ -28,8 +28,8 @@ model Transactions {
   userId   String
   spotId   String?
   status   TransactionStatus @default(INIT)
-  provider PaymentProvider
-  terminal Terminal
+  provider String
+  terminal String
   amount   Float
   tip      Float
 
@@ -101,16 +101,4 @@ enum TransactionStatus {
   PENDING
   PAID
   CANCELED
-}
-
-enum PaymentProvider {
-  uzum
-  click
-  payme
-}
-
-enum Terminal {
-  poster
-  rkeeper
-  iiko
 }
