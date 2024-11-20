@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import { PrismaService } from 'src/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigService } from '@nestjs/config';
-import { ClickError } from 'src/enums/Payment.enum';
+import { ClickError } from 'src/enums/payment.enum';
 import { log } from 'node:console';
 
 @Injectable()
