@@ -12,14 +12,16 @@ import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
-import { ObjectId } from 'mongodb';
 import { RkeeperService } from 'src/rkeeper/rkeeper.service';
 import { CompleteOrderParams } from 'src/rkeeper/types/complete-order.params';
+import { PosterService } from 'src/poster/poster.service';
 
 
 @Injectable()
 export class PaymeService {
-  constructor(private readonly prismaService: PrismaService, private readonly rkeeperService: RkeeperService) { }
+  constructor(private readonly prismaService: PrismaService,
+    private readonly rkeeperService: RkeeperService,
+    private readonly posterService: PosterService) { }
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;
@@ -298,7 +300,13 @@ export class PaymeService {
     } else if (transaction.terminal === "iiko") {
       console.log("iiko order completed")
     } else if (transaction.terminal === "poster") {
-      console.log("poster order completed")
+      const result = await this.posterService.closeTransaction({
+        spotId: transaction.spotId,
+        spotTabletId: transaction.tableId,
+        transactionId: transaction.id,
+        total: transaction.amount
+      });
+      console.log("poster order completed: ", result)
     }
 
     const performTime = new Date();

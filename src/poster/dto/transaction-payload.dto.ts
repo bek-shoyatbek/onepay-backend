@@ -1,19 +1,19 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class TransactionPayloadDto {
     @IsNotEmpty()
-    @IsNumber()
-    spotId: number;
+    @IsString()
+    spotId: string;
+
+    @IsNotEmpty()
+    @IsString()
+    spotTabletId: string;
+
+    @IsNotEmpty()
+    @IsString()
+    transactionId: string;
 
     @IsNotEmpty()
     @IsNumber()
-    spotTabletId: number;
-
-    @IsNotEmpty()
-    @IsNumber()
-    transactionId: number;
-
-    @IsNotEmpty()
-    @IsNumber()
-    payedCash: number;
+    total: number;
 }

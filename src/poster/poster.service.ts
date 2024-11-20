@@ -43,7 +43,7 @@ export class PosterService {
                     spot_id: transaction.spotId,
                     spot_tablet_id: transaction.spotTabletId,
                     transaction_id: transaction.transactionId,
-                    payed_cash: transaction.payedCash
+                    payed_cash: transaction.total
                 },
             });
 
