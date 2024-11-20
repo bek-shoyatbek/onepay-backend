@@ -62,14 +62,11 @@ export class PaymeService {
     const transactionId =
       checkPerformTransactionDto.params.account?.transactionId;
 
-    console.log("transactionId: ", transactionId);
-
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
       },
     });
-    console.log("transaction: ", transaction);
 
     if (!transaction) {
       return {
@@ -108,8 +105,6 @@ export class PaymeService {
         id: transactionId,
       },
     });
-
-    console.log("transaction", transaction);
 
     if (transaction) {
       if (transaction.status === 'PENDING') {
