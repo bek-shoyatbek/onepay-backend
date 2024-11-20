@@ -63,11 +63,6 @@ export class PaymeService {
       checkPerformTransactionDto.params.account?.transactionId;
 
     console.log("transactionId: ", transactionId);
-    if (!ObjectId.isValid(transactionId)) {
-      return {
-        error: PaymeError.ProductNotFound,
-      };
-    }
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
@@ -107,12 +102,6 @@ export class PaymeService {
     const amount = createTransactionDto.params.amount;
     const transId = createTransactionDto.params.id;
 
-    if (!ObjectId.isValid(transactionId)) {
-      return {
-        error: PaymeError.ProductNotFound,
-        id: transId,
-      };
-    }
 
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
