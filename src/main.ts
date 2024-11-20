@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import morgan from 'morgan';
 import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 const PORT = process.env.PORT || 6500;
 
@@ -22,6 +23,10 @@ async function bootstrap() {
 
   app.useStaticAssets(frontendAssetsDir);
 
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true,
+  }));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new InternalServerErrorExceptionFilter());
 

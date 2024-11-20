@@ -1,7 +1,6 @@
+import { PaymentProvider, Terminal } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Terminal } from 'src/constants/terminal.constant';
-import { PaymentProvider } from 'src/types/payment-providers';
 
 export class InitTransactionDto {
   @IsNotEmpty()
@@ -19,10 +18,10 @@ export class InitTransactionDto {
   spotId: string;
 
   @IsNotEmpty()
+  @IsEnum(PaymentProvider)
   provider: PaymentProvider;
 
   @IsNotEmpty()
-  @Transform(({ value }) => ("" + value).toLowerCase())
   @IsEnum(Terminal)
   terminal: Terminal;
 
