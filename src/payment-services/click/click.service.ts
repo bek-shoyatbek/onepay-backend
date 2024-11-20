@@ -6,7 +6,7 @@ import { PrismaService } from 'src/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigService } from '@nestjs/config';
 import { log } from 'node:console';
-import { ClickError } from 'src/enums';
+import { ClickError } from './constants/status-codes';
 
 @Injectable()
 export class ClickService {
