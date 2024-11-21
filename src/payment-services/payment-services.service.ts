@@ -22,7 +22,6 @@ export class PaymentServicesService {
         tip: initTransactionDto.tip,
         terminal: initTransactionDto.terminal as Terminal,
         spotId: initTransactionDto.spotId,
-        tableId: initTransactionDto?.tableId || null,
         status: 'INIT',
       },
     });

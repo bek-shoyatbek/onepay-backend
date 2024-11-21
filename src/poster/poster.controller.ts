@@ -17,8 +17,5 @@ export class PosterController {
     return await this.posterService.getTransactions(queryParams.dateFrom, queryParams.dateTo);
   }
 
-  @Post("close-transaction")
-  async closeTransaction(@Body() body: TransactionPayloadDto) {
-    return await this.posterService.closeTransaction(body);
-  }
+
 }

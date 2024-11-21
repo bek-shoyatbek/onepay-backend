@@ -24,10 +24,6 @@ export class InitTransactionDto {
   @IsEnum(Terminal)
   terminal: Terminal;
 
-  @IsString()
-  @IsOptional()
-  tableId?: string;
-
   @IsNotEmpty()
   @IsNumber()
   tip: number;

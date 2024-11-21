@@ -66,16 +66,18 @@ export class PosterService {
      * @returns Promise with the API response
      * @throws HttpException if the API request fails
      */
-    async closeTransaction(transaction: TransactionPayloadDto): Promise<{ response: { err_code: number } }> {
+    async closeTransaction(payload: TransactionPayloadDto): Promise<{ response: { err_code: number } }> {
         try {
+            const transactions = await this.getTransactions();
+            // const transaction = transactions.find((t) => t. === orderId);
             const response = await this.axiosInstance({
                 method: 'post',
                 url: `/transactions.closeTransaction?token=${this.token}`,
                 data: {
-                    spot_id: transaction.spotId,
-                    spot_tablet_id: transaction.spotTabletId,
-                    transaction_id: transaction.transactionId,
-                    payed_cash: transaction.total
+                    spot_id: "",
+                    spot_tablet_id: "",
+                    transaction_id: "",
+                    payed_cash: 10000
                 },
             });
 

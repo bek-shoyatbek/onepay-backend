@@ -302,8 +302,8 @@ export class PaymeService {
     } else if (transaction.terminal === "poster") {
       const result = await this.posterService.closeTransaction({
         spotId: transaction.spotId,
-        spotTabletId: transaction.tableId,
-        transactionId: transaction.id,
+        spotTabletId: "",
+        transactionId: "",
         total: transaction.amount
       });
       console.log("poster order completed: ", result)
