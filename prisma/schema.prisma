@@ -33,6 +33,7 @@ model Transactions {
   amount   Float
   tip      Float
 
+  tableId     String?
   transId     String?
   prepareId   Int?
   performTime DateTime?

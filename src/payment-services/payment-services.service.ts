@@ -20,6 +20,7 @@ export class PaymentServicesService {
         userId: initTransactionDto.userId,
         orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
+        tableId: initTransactionDto.spotTabletId,
         terminal: initTransactionDto.terminal as Terminal,
         spotId: initTransactionDto.spotId,
         status: 'INIT',

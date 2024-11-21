@@ -68,16 +68,15 @@ export class PosterService {
      */
     async closeTransaction(payload: TransactionPayloadDto): Promise<{ response: { err_code: number } }> {
         try {
-            const transactions = await this.getTransactions();
-            // const transaction = transactions.find((t) => t. === orderId);
+
             const response = await this.axiosInstance({
                 method: 'post',
                 url: `/transactions.closeTransaction?token=${this.token}`,
                 data: {
-                    spot_id: "",
-                    spot_tablet_id: "",
-                    transaction_id: "",
-                    payed_cash: 10000
+                    spot_id: payload.spotId,
+                    spot_tablet_id: payload.spotTabletId,
+                    transaction_id: payload.transactionId,
+                    payed_cash: payload.total,
                 },
             });
 

@@ -20,6 +20,10 @@ export class InitTransactionDto {
   @IsEnum(PaymentProvider)
   provider: PaymentProvider;
 
+  @IsOptional()
+  @IsString()
+  spotTabletId?: string;
+
   @IsNotEmpty()
   @IsEnum(Terminal)
   terminal: Terminal;
