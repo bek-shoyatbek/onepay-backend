@@ -28,12 +28,23 @@ export class PosterService {
         });
     }
 
-    async getTodayTransactions(): Promise<TransactionData[]> {
+    async getTransactions(dateFrom?: string, dateTo?: string): Promise<TransactionData[]> {
         try {
             const today = new Date().toISOString().split('T')[0];
+
+            if (!dateFrom) {
+                dateFrom = today;
+            }
+
+
+            if (!dateTo) {
+                dateTo = today;
+            }
+
+
             const response = await this.axiosInstance({
                 method: 'get',
-                url: `/transactions.getTransactions?token=${this.token}&date_from=${today}&date_to=${today}`,
+                url: `/transactions.getTransactions?token=${this.token}&date_from=${dateFrom}&date_to=${dateTo}`,
             });
             const data = response.data as TransactionsResponse;
 
