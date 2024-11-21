@@ -1,7 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { TransactionPayloadDto } from './dto';
+import { TransactionData, TransactionPayloadDto, TransactionsResponse } from './dto';
 
 
 
@@ -26,6 +26,27 @@ export class PosterService {
             baseURL: this.baseUrl,
             timeout: 5000, // 5 seconds timeout
         });
+    }
+
+    async getTodayTransactions(): Promise<TransactionData[]> {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const response = await this.axiosInstance({
+                method: 'get',
+                url: `/transactions.getTransactions?token=${this.token}&date_from=${today}&date_to=${today}`,
+            });
+            const data = response.data as TransactionsResponse;
+
+            return data.response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                throw new HttpException(
+                    `Failed to get today transactions: ${error.message}`,
+                    error.response?.status || 500
+                );
+            }
+            throw error;
+        }
     }
 
     /**
