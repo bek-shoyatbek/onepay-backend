@@ -31,7 +31,7 @@ export class PaymentServicesService {
     const paymentPageURL = this.redirectingService.generateRedirectUrl(
       initTransactionDto.provider,
       {
-        amount: initTransactionDto.total + initTransactionDto.tip,
+        amount: initTransactionDto.total + initTransactionDto.tip * 100,
         transactionId: newTransaction.id,
       },
     );
