@@ -280,7 +280,7 @@ export class PaymeService {
         id: performTransactionDto.params.id,
       };
     }
-
+    console.log('terminal: ', transaction.terminal);
     if (transaction.terminal === 'rkeeper') {
       const rKeeperParams: CompleteOrderParams = {
         orderId: transaction.orderId,
