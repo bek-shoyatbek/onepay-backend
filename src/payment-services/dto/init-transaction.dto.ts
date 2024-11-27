@@ -23,6 +23,7 @@ export class InitTransactionDto {
   @IsString()
   spotTabletId?: string;
 
+  @IsNotEmpty()
   @IsString()
   terminal: string;
 
