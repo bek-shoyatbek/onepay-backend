@@ -16,12 +16,13 @@ import { RkeeperService } from 'src/rkeeper/rkeeper.service';
 import { CompleteOrderParams } from 'src/rkeeper/types/complete-order.params';
 import { PosterService } from 'src/poster/poster.service';
 
-
 @Injectable()
 export class PaymeService {
-  constructor(private readonly prismaService: PrismaService,
+  constructor(
+    private readonly prismaService: PrismaService,
     private readonly rkeeperService: RkeeperService,
-    private readonly posterService: PosterService) { }
+    private readonly posterService: PosterService,
+  ) {}
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;
@@ -101,7 +102,6 @@ export class PaymeService {
     const amount = createTransactionDto.params.amount;
     const transId = createTransactionDto.params.id;
 
-
     const transaction = await this.prismaService.transactions.findUnique({
       where: {
         id: transactionId,
@@ -130,8 +130,6 @@ export class PaymeService {
             },
           });
 
-
-
           return {
             error: {
               ...PaymeError.CantDoOperation,
@@ -147,16 +145,16 @@ export class PaymeService {
             transaction: transaction.id,
             state: TransactionState.Pending,
             create_time: new Date(transaction.createdAt).getTime(),
-            receivers: [
-              {
-                "id": "5305e3bab097f420a62ced0b",
-                "amount": Math.floor(transaction.amount / 2),
-              },
-              {
-                "id": "4215e6bab097f420a62ced01",
-                "amount": Math.floor(transaction.amount / 2),
-              }
-            ],
+            // receivers: [
+            //   {
+            //     id: '5305e3bab097f420a62ced0b',
+            //     amount: Math.floor(transaction.amount / 2),
+            //   },
+            //   {
+            //     id: '4215e6bab097f420a62ced01',
+            //     amount: Math.floor(transaction.amount / 2),
+            //   },
+            // ],
           },
         };
       } else if (transaction.status !== 'INIT') {
@@ -206,16 +204,16 @@ export class PaymeService {
         transaction: updatedTransaction.id,
         state: updatedTransaction.state,
         create_time: new Date(updatedTransaction.createdAt).getTime(),
-        receivers: [
-          {
-            "id": "5305e3bab097f420a62ced0b",
-            "amount": Math.floor(amount / 2),
-          },
-          {
-            "id": "4215e6bab097f420a62ced01",
-            "amount": Math.floor(amount / 2),
-          }
-        ],
+        // receivers: [
+        //   {
+        //     id: '5305e3bab097f420a62ced0b',
+        //     amount: Math.floor(amount / 2),
+        //   },
+        //   {
+        //     id: '4215e6bab097f420a62ced01',
+        //     amount: Math.floor(amount / 2),
+        //   },
+        // ],
       },
     };
   }
@@ -283,7 +281,7 @@ export class PaymeService {
       };
     }
 
-    if (transaction.terminal === "rkeeper") {
+    if (transaction.terminal === 'rkeeper') {
       const rKeeperParams: CompleteOrderParams = {
         orderId: transaction.orderId,
         total: transaction.amount,
@@ -291,22 +289,22 @@ export class PaymeService {
         spotId: transaction.spotId,
       };
 
-      const isOrderCompleted = await this.rkeeperService.completeOrder(rKeeperParams);
+      const isOrderCompleted =
+        await this.rkeeperService.completeOrder(rKeeperParams);
 
       if (!isOrderCompleted) {
-        throw new InternalServerErrorException("Order completion failed");
+        throw new InternalServerErrorException('Order completion failed');
       }
-
-    } else if (transaction.terminal === "iiko") {
-      console.log("iiko order completed")
-    } else if (transaction.terminal === "poster") {
+    } else if (transaction.terminal === 'iiko') {
+      console.log('iiko order completed');
+    } else if (transaction.terminal === 'poster') {
       const result = await this.posterService.closeTransaction({
         spotId: transaction.spotId,
-        spotTabletId: "",
-        transactionId: "",
-        total: transaction.amount
+        spotTabletId: '',
+        transactionId: '',
+        total: transaction.amount,
       });
-      console.log("poster order completed: ", result)
+      console.log('poster order completed: ', result);
     }
 
     const performTime = new Date();
@@ -321,9 +319,6 @@ export class PaymeService {
         performTime,
       },
     });
-
-
-
 
     return {
       result: {
