@@ -26,6 +26,8 @@ export class PaymentServicesController {
   async initTransaction(@Body() initTransactionDto: InitTransactionDto) {
     initTransactionDto.total =
       (initTransactionDto.tip + initTransactionDto.total) * 100;
+
+    initTransactionDto.terminal = 'rkeeper';
     return await this.paymentServicesService.initTransaction(
       initTransactionDto,
     );
