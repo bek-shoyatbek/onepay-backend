@@ -14,7 +14,7 @@ import { InitTransactionDto } from './dto/init-transaction.dto';
 export class PaymentServicesController {
   constructor(
     private readonly paymentServicesService: PaymentServicesService,
-  ) { }
+  ) {}
 
   @Post('init')
   @UsePipes(
@@ -24,9 +24,10 @@ export class PaymentServicesController {
   )
   @HttpCode(HttpStatus.OK)
   async initTransaction(@Body() initTransactionDto: InitTransactionDto) {
+    initTransactionDto.total =
+      (initTransactionDto.tip + initTransactionDto.total) * 100;
     return await this.paymentServicesService.initTransaction(
       initTransactionDto,
     );
   }
-
 }
