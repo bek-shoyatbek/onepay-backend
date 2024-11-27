@@ -7,11 +7,12 @@ import * as https from 'https';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
 import { CompleteOrderParams } from './types/complete-order.params';
+import { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class RkeeperService {
-  private apiURL: string;
-  private axiosConfigs;
+  private readonly apiURL: string;
+  private readonly axiosConfigs: AxiosRequestConfig<any>;
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
@@ -33,7 +34,6 @@ export class RkeeperService {
     };
   }
 
-
   async generateURL(params: RKeeperParams) {
     const UI_URL = this.configService.get('UI_URL');
     console.log(params);
@@ -47,8 +47,8 @@ export class RkeeperService {
 
   /**
    *
-   * @param orderId string
    * @returns {Promise<boolean>}
+   * @param completeOrderParams
    */
   async completeOrder(
     completeOrderParams: CompleteOrderParams,
@@ -104,7 +104,6 @@ export class RkeeperService {
 
     try {
       const result = await parseXml(xml);
-
 
       const order = result.RK7QueryResult.CommandResult[0].Order[0];
 

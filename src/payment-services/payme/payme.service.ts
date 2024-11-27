@@ -280,7 +280,7 @@ export class PaymeService {
         id: performTransactionDto.params.id,
       };
     }
-
+    console.log('Terminal: ', transaction.terminal);
     if (transaction.terminal === 'rkeeper') {
       const rKeeperParams: CompleteOrderParams = {
         orderId: transaction.orderId,
@@ -292,19 +292,15 @@ export class PaymeService {
       const isOrderCompleted =
         await this.rkeeperService.completeOrder(rKeeperParams);
 
+      console.log('isOrderCompleted: ', isOrderCompleted);
+
       if (!isOrderCompleted) {
         throw new InternalServerErrorException('Order completion failed');
       }
     } else if (transaction.terminal === 'iiko') {
       console.log('iiko order completed');
     } else if (transaction.terminal === 'poster') {
-      const result = await this.posterService.closeTransaction({
-        spotId: transaction.spotId,
-        spotTabletId: '',
-        transactionId: '',
-        total: transaction.amount,
-      });
-      console.log('poster order completed: ', result);
+      console.log('poster order completed');
     }
 
     const performTime = new Date();
