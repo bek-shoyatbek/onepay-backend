@@ -17,7 +17,7 @@ export class RkeeperController {
     return await this.rkeeperService.completeOrder(completeOrderDto);
   }
 
-  @Get("/generate-url")
+  @Get('/generate-url')
   async generateURL(@Query() params: RKeeperParams) {
     return await this.rkeeperService.generateURL(params);
   }

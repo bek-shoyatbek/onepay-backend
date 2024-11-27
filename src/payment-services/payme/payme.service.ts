@@ -295,6 +295,7 @@ export class PaymeService {
       if (!isOrderCompleted) {
         throw new InternalServerErrorException('Order completion failed');
       }
+      console.log('rkeeper order completed');
     } else if (transaction.terminal === 'iiko') {
       console.log('iiko order completed');
     } else if (transaction.terminal === 'poster') {
