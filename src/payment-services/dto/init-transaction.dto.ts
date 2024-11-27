@@ -1,11 +1,4 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { PaymentProvider, Terminal } from 'src/enums';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class InitTransactionDto {
   @IsNotEmpty()
@@ -23,16 +16,16 @@ export class InitTransactionDto {
   spotId: string;
 
   @IsNotEmpty()
-  @IsEnum(PaymentProvider)
-  provider: PaymentProvider;
+  @IsString()
+  provider: string;
 
   @IsOptional()
   @IsString()
   spotTabletId?: string;
 
   @IsNotEmpty()
-  @IsEnum(Terminal)
-  terminal: Terminal;
+  @IsString()
+  terminal: string;
 
   @IsNotEmpty()
   @IsNumber()
