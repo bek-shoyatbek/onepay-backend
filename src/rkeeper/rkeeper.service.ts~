@@ -7,12 +7,11 @@ import * as https from 'https';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
 import { CompleteOrderParams } from './types/complete-order.params';
-import { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class RkeeperService {
-  private readonly apiURL: string;
-  private readonly axiosConfigs: AxiosRequestConfig<any>;
+  private apiURL: string;
+  private axiosConfigs;
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
@@ -47,8 +46,8 @@ export class RkeeperService {
 
   /**
    *
+   * @param orderId string
    * @returns {Promise<boolean>}
-   * @param completeOrderParams
    */
   async completeOrder(
     completeOrderParams: CompleteOrderParams,

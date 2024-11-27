@@ -1,0 +1,13 @@
+import { HttpService } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RkeeperController } from './rkeeper.controller';
+import { RkeeperService } from './rkeeper.service';
+import { PrismaService } from '../prisma.service';
+
+@Module({
+  imports: [ConfigModule.forRoot()],
+  controllers: [RkeeperController],
+  providers: [RkeeperService, PrismaService, ConfigService, HttpService],
+})
+export class RkeeperModule {}
