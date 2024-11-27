@@ -12,14 +12,13 @@ import { PaymeBasicAuthGuard } from 'src/auth/guards/payme.guard';
 
 @Controller('payme')
 export class PaymeController {
-  constructor(private readonly paymeService: PaymeService) { }
-
+  constructor(private readonly paymeService: PaymeService) {}
 
   @Post()
   @UseGuards(PaymeBasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async handleTransactionMethods(@Body() reqBody: RequestBody) {
-    console.log("reqBody: ", reqBody);
+    console.log('reqBody: ', reqBody);
     const result = await this.paymeService.handleTransactionMethods(reqBody);
     console.log('response: ', result);
     return result;
