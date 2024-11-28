@@ -14,7 +14,8 @@ import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
 import { RkeeperService } from 'src/terminals/rkeeper/rkeeper.service';
 import { PosterService } from 'src/terminals/poster/poster.service';
-import { closeOrder } from '../../utils/terminals';
+import { closeOrder } from "../../../utils/terminals";
+
 
 @Injectable()
 export class PaymeService {
@@ -145,16 +146,6 @@ export class PaymeService {
             transaction: transaction.id,
             state: TransactionState.Pending,
             create_time: new Date(transaction.createdAt).getTime(),
-            // receivers: [
-            //   {
-            //     id: '5305e3bab097f420a62ced0b',
-            //     amount: Math.floor(transaction.amount / 2),
-            //   },
-            //   {
-            //     id: '4215e6bab097f420a62ced01',
-            //     amount: Math.floor(transaction.amount / 2),
-            //   },
-            // ],
           },
         };
       } else if (transaction.status !== 'INIT') {
@@ -204,16 +195,6 @@ export class PaymeService {
         transaction: updatedTransaction.id,
         state: updatedTransaction.state,
         create_time: new Date(updatedTransaction.createdAt).getTime(),
-        // receivers: [
-        //   {
-        //     id: '5305e3bab097f420a62ced0b',
-        //     amount: Math.floor(amount / 2),
-        //   },
-        //   {
-        //     id: '4215e6bab097f420a62ced01',
-        //     amount: Math.floor(amount / 2),
-        //   },
-        // ],
       },
     };
   }
