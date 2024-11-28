@@ -53,6 +53,7 @@ export class RkeeperService {
   async completeOrder(
     completeOrderParams: CompleteOrderParams,
   ): Promise<boolean> {
+    console.log('completeOrderParams: ', completeOrderParams);
     const xmlBodyStr = `<RK7Query>
 	<RK7CMD CMD="PayOrder">
 		<Order guid="{${completeOrderParams.orderId}}"/>
