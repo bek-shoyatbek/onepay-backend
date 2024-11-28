@@ -44,31 +44,3 @@ bootstrap()
     console.log('Application failed to start');
     console.log(error);
   });
-
-process.on('unhandledRejection', (error) => {
-  console.log('Unhandled Rejection at Promise');
-  console.log(error);
-});
-
-process.on('uncaughtException', (error) => {
-  console.log('Uncaught Exception');
-  console.log(error);
-});
-
-process.on('uncaughtExceptionMonitor', (error) => {
-  console.log('Uncaught Exception Monitor');
-  console.log(error);
-});
-
-process.on('exit', (code) => {
-  console.log('Exit');
-  console.log(code);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT');
-});
-
-process.on('SIGTERM', () => {
-  console.log('SIGTERM');
-});
