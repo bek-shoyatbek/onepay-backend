@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class PosterService {
-  private readonly axiosInstance: AxiosInstance;
+  private readonly api: AxiosInstance;
   private readonly baseUrl = 'https://joinposter.com/api';
   private readonly token: string;
 
@@ -24,7 +24,7 @@ export class PosterService {
     }
 
     // Create axios instance with default config
-    this.axiosInstance = axios.create({
+    this.api = axios.create({
       baseURL: this.baseUrl,
       timeout: 5000, // 5 seconds timeout
     });
@@ -45,7 +45,7 @@ export class PosterService {
         dateTo = today;
       }
 
-      const response = await this.axiosInstance({
+      const response = await this.api({
         method: 'get',
         url: `/transactions.getTransactions?token=${this.token}&date_from=${dateFrom}&date_to=${dateTo}`,
       });
@@ -73,7 +73,7 @@ export class PosterService {
     payload: TransactionPayloadDto,
   ): Promise<{ response: { err_code: number } }> {
     try {
-      const response = await this.axiosInstance({
+      const response = await this.api({
         method: 'post',
         url: `/transactions.closeTransaction?token=${this.token}`,
         data: {
