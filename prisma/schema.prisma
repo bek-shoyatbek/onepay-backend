@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Restaurants {
+model Restaurant {
   id               String   @id @default(uuid())
   name             String
   image            String
@@ -17,12 +17,12 @@ model Restaurants {
   updatedAt DateTime @updatedAt
 
   // Relations (optional)
-  waiters Waiters[]
-  admins  Admins[]
-  tips    TipTransactions[]
+  waiters Waiter[]
+  admins  Admin[]
+  tips    TipTransaction[]
 }
 
-model Transactions {
+model Transaction {
   id        String            @id @default(uuid())
   orderId   String
   userId    String
@@ -46,7 +46,7 @@ model Transactions {
   updatedAt DateTime @updatedAt
 }
 
-model Waiters {
+model Waiter {
   id           String  @id @default(uuid())
   restaurantId String
   waiterId     String
@@ -57,14 +57,14 @@ model Waiters {
   updatedAt DateTime @updatedAt
 
   // Relation to restaurant
-  restaurant Restaurants       @relation(fields: [restaurantId], references: [id])
+  restaurant Restaurant       @relation(fields: [restaurantId], references: [id])
   // Relation to tip transactions
-  tips       TipTransactions[]
+  tips       TipTransaction[]
 
   @@index([restaurantId])
 }
 
-model Admins {
+model Admin {
   id           String  @id @default(uuid())
   restaurantId String
   adminId      String
@@ -75,12 +75,12 @@ model Admins {
   updatedAt DateTime @updatedAt
 
   // Relation to restaurant
-  restaurant Restaurants @relation(fields: [restaurantId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   @@index([restaurantId])
 }
 
-model TipTransactions {
+model TipTransaction {
   id           String @id @default(uuid())
   amount       Float
   restaurantId String
@@ -90,8 +90,8 @@ model TipTransactions {
   updatedAt DateTime @updatedAt
 
   // Relations
-  restaurant Restaurants @relation(fields: [restaurantId], references: [id])
-  waiter     Waiters     @relation(fields: [waiterId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  waiter     Waiter     @relation(fields: [waiterId], references: [id])
 
   @@index([restaurantId])
   @@index([waiterId])
