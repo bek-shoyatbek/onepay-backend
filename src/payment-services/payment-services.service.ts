@@ -29,8 +29,7 @@ export class PaymentServicesService {
       },
     });
 
-    console.log('newTransaction: ', newTransaction);
-    const paymentPageURL = this.redirectingService.generateRedirectUrl(
+    const redirectUrl = this.redirectingService.generateRedirectUrl(
       initTransactionDto.provider as PaymentProvider,
       {
         amount: initTransactionDto.total + initTransactionDto.tip,
@@ -38,6 +37,6 @@ export class PaymentServicesService {
       },
     );
 
-    return { url: paymentPageURL };
+    return { url: redirectUrl };
   }
 }
