@@ -46,7 +46,7 @@ export class UzumService {
       });
     }
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transaction.findUnique({
       where: {
         id: checkTransactionDto.params.transactionId,
       },
@@ -103,7 +103,7 @@ export class UzumService {
     info('createTransactionDto', createTransactionDto);
 
     const isExistingTransaction =
-      await this.prismaService.transactions.findFirst({
+      await this.prismaService.transaction.findFirst({
         where: {
           transId,
         },
@@ -119,7 +119,7 @@ export class UzumService {
       });
     }
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transaction.findUnique({
       where: {
         id: transactionId,
       },
@@ -149,7 +149,7 @@ export class UzumService {
       });
     }
 
-    await this.prismaService.transactions.update({
+    await this.prismaService.transaction.update({
       where: {
         id: transactionId,
       },
@@ -188,7 +188,7 @@ export class UzumService {
 
     info('confirmTransactionDto', confirmTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId,
       },
@@ -227,7 +227,7 @@ export class UzumService {
       });
     }
 
-    await this.prismaService.transactions.update({
+    await this.prismaService.transaction.update({
       where: {
         id: transaction.id,
       },
@@ -262,7 +262,7 @@ export class UzumService {
 
     info('reverseTransactionDto', reverseTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId,
       },
@@ -278,7 +278,7 @@ export class UzumService {
       });
     }
 
-    await this.prismaService.transactions.update({
+    await this.prismaService.transaction.update({
       where: {
         id: transaction.id,
       },
@@ -312,7 +312,7 @@ export class UzumService {
 
     info('checkTransactionDto', checkTransactionDto);
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId,
       },

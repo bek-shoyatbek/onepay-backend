@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
-import { Terminal } from 'src/enums';
+import { PaymentProvider, Terminal } from 'src/enums';
 
 @Injectable()
 export class PaymentServicesService {
@@ -13,10 +13,12 @@ export class PaymentServicesService {
 
   async initTransaction(initTransactionDto: InitTransactionDto) {
     console.log('initTransactionDto: ', initTransactionDto);
-    const newTransaction = await this.prismaService.transactions.create({
+    const isTipOnly = initTransactionDto.isTipOnly;
+    const newTransaction = await this.prismaService.transaction.create({
       data: {
-        amount: initTransactionDto.total + initTransactionDto.tip,
+        amount: isTipOnly ? initTransactionDto.tip : initTransactionDto.total,
         provider: initTransactionDto.provider,
+        isTipOnly,
         userId: initTransactionDto.userId,
         orderId: initTransactionDto.orderId,
         tip: initTransactionDto.tip,
@@ -29,7 +31,7 @@ export class PaymentServicesService {
 
     console.log('newTransaction: ', newTransaction);
     const paymentPageURL = this.redirectingService.generateRedirectUrl(
-      initTransactionDto.provider,
+      initTransactionDto.provider as PaymentProvider,
       {
         amount: initTransactionDto.total + initTransactionDto.tip,
         transactionId: newTransaction.id,

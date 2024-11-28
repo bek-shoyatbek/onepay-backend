@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class InitTransactionDto {
   @IsNotEmpty()
@@ -18,6 +24,10 @@ export class InitTransactionDto {
   @IsNotEmpty()
   @IsString()
   provider: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isTipOnly: boolean;
 
   @IsOptional()
   @IsString()

@@ -14,7 +14,7 @@ export class ClickService {
     private readonly prismaService: PrismaService,
     private readonly hashingService: HashingService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async handleMerchantTransactions(clickReqBody: ClickRequestDto) {
     const actionType = +clickReqBody.action;
@@ -61,7 +61,7 @@ export class ClickService {
       };
     }
 
-    const isAlreadyPaid = await this.prismaService.transactions.findFirst({
+    const isAlreadyPaid = await this.prismaService.transaction.findFirst({
       where: {
         id: transactionId,
         status: 'PAID',
@@ -75,7 +75,7 @@ export class ClickService {
       };
     }
 
-    const isCancelled = await this.prismaService.transactions.findFirst({
+    const isCancelled = await this.prismaService.transaction.findFirst({
       where: {
         id: transactionId,
         status: 'CANCELED',
@@ -89,7 +89,7 @@ export class ClickService {
       };
     }
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId: transId,
       },
@@ -106,7 +106,7 @@ export class ClickService {
 
     log('click:transactionId', transactionId);
 
-    await this.prismaService.transactions.update({
+    await this.prismaService.transaction.update({
       where: {
         id: transactionId,
       },
@@ -163,13 +163,13 @@ export class ClickService {
       };
     }
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transaction.findUnique({
       where: {
         id: transactionId,
       },
     });
 
-    const isPrepared = await this.prismaService.transactions.findFirst({
+    const isPrepared = await this.prismaService.transaction.findFirst({
       where: {
         id: transactionId,
         prepareId: +clickReqBody.merchant_prepare_id,
@@ -184,7 +184,7 @@ export class ClickService {
       };
     }
 
-    const isAlreadyPaid = await this.prismaService.transactions.findFirst({
+    const isAlreadyPaid = await this.prismaService.transaction.findFirst({
       where: {
         id: transactionId,
         prepareId: +clickReqBody.merchant_prepare_id,
@@ -214,7 +214,7 @@ export class ClickService {
     }
 
     if (error > 0) {
-      await this.prismaService.transactions.update({
+      await this.prismaService.transaction.update({
         where: {
           id: transactionId,
         },
@@ -230,7 +230,7 @@ export class ClickService {
     }
 
     // update payment status
-    await this.prismaService.transactions.update({
+    await this.prismaService.transaction.update({
       where: {
         id: transactionId,
       },

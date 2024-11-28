@@ -133,7 +133,7 @@ export class BotService {
     if (role && userData) {
       const telegramId = ctx.from.id.toString();
       if (role === 'waiter') {
-        await this.prisma.waiters.create({
+        await this.prisma.waiter.create({
           data: {
             restaurantId: userData.restaurantId,
             waiterId: userData.id,
@@ -142,7 +142,7 @@ export class BotService {
           },
         });
       } else {
-        await this.prisma.admins.create({
+        await this.prisma.admin.create({
           data: {
             restaurantId: userData.restaurantId,
             adminId: userData.id,
@@ -160,10 +160,10 @@ export class BotService {
 
   private async showMainMenu(ctx: MyContext) {
     const telegramId = ctx.from.id.toString();
-    const waiter = await this.prisma.waiters.findFirst({
+    const waiter = await this.prisma.waiter.findFirst({
       where: { telegramId },
     });
-    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
+    const admin = await this.prisma.admin.findFirst({ where: { telegramId } });
 
     if (!waiter && !admin) {
       await ctx.reply('Please register first by using the /start command.');
@@ -214,7 +214,7 @@ export class BotService {
 
   private async checkBalance(ctx: MyContext) {
     const telegramId = ctx.from.id.toString();
-    const waiter = await this.prisma.waiters.findFirst({
+    const waiter = await this.prisma.waiter.findFirst({
       where: { telegramId },
     });
 
@@ -223,7 +223,7 @@ export class BotService {
       return;
     }
 
-    const tips = await this.prisma.tipTransactions.findMany({
+    const tips = await this.prisma.tipTransaction.findMany({
       where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
     });
 
@@ -235,7 +235,7 @@ export class BotService {
 
   private async requestTransfer(ctx: MyContext) {
     const telegramId = ctx.from.id.toString();
-    const waiter = await this.prisma.waiters.findFirst({
+    const waiter = await this.prisma.waiter.findFirst({
       where: { telegramId },
     });
 
@@ -244,13 +244,13 @@ export class BotService {
       return;
     }
 
-    const tips = await this.prisma.tipTransactions.findMany({
+    const tips = await this.prisma.tipTransaction.findMany({
       where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
     });
 
     const balance = tips.reduce((sum, tip) => sum + tip.amount, 0);
 
-    const admin = await this.prisma.admins.findFirst({
+    const admin = await this.prisma.admin.findFirst({
       where: { restaurantId: waiter.restaurantId },
     });
 
@@ -267,7 +267,7 @@ export class BotService {
 
   private async promptSendMessage(ctx: MyContext) {
     const telegramId = ctx.from.id.toString();
-    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
+    const admin = await this.prisma.admin.findFirst({ where: { telegramId } });
 
     if (!admin) {
       await ctx.reply('This action is only available for admins.');
@@ -281,14 +281,14 @@ export class BotService {
 
   private async viewWaiters(ctx: MyContext) {
     const telegramId = ctx.from.id.toString();
-    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
+    const admin = await this.prisma.admin.findFirst({ where: { telegramId } });
 
     if (!admin) {
       await ctx.reply('This action is only available for admins.');
       return;
     }
 
-    const waiters = await this.prisma.waiters.findMany({
+    const waiters = await this.prisma.waiter.findMany({
       where: { restaurantId: admin.restaurantId },
     });
 
@@ -314,19 +314,19 @@ export class BotService {
 
   private async searchWaiter(ctx: MyContext, waiterId: string) {
     const telegramId = ctx.from.id.toString();
-    const admin = await this.prisma.admins.findFirst({ where: { telegramId } });
+    const admin = await this.prisma.admin.findFirst({ where: { telegramId } });
 
     if (!admin) {
       await ctx.reply('This action is only available for admins.');
       return;
     }
 
-    const waiter = await this.prisma.waiters.findFirst({
+    const waiter = await this.prisma.waiter.findFirst({
       where: { waiterId, restaurantId: admin.restaurantId },
     });
 
     if (waiter) {
-      const tips = await this.prisma.tipTransactions.findMany({
+      const tips = await this.prisma.tipTransaction.findMany({
         where: { waiterId: waiter.waiterId, restaurantId: waiter.restaurantId },
       });
 
@@ -348,12 +348,12 @@ export class BotService {
     waiterId: string,
     amount: number,
   ) {
-    const waiter = await this.prisma.waiters.findFirst({
+    const waiter = await this.prisma.waiter.findFirst({
       where: { waiterId, restaurantId },
     });
 
     if (waiter) {
-      await this.prisma.tipTransactions.create({
+      await this.prisma.tipTransaction.create({
         data: {
           amount,
           restaurantId,

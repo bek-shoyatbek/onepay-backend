@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TransactionMethods } from './constants/transaction-methods';
 import { CheckPerformTransactionDto } from './dto/check-perform-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -13,8 +13,8 @@ import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
 import { RkeeperService } from 'src/rkeeper/rkeeper.service';
-import { CompleteOrderParams } from 'src/rkeeper/types/complete-order.params';
 import { PosterService } from 'src/poster/poster.service';
+import { closeOrder } from '../../utils/terminals';
 
 @Injectable()
 export class PaymeService {
@@ -65,7 +65,7 @@ export class PaymeService {
     const transactionId =
       checkPerformTransactionDto.params.account?.transactionId;
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transaction.findUnique({
       where: {
         id: transactionId,
       },
@@ -102,7 +102,7 @@ export class PaymeService {
     const amount = createTransactionDto.params.amount;
     const transId = createTransactionDto.params.id;
 
-    const transaction = await this.prismaService.transactions.findUnique({
+    const transaction = await this.prismaService.transaction.findUnique({
       where: {
         id: transactionId,
       },
@@ -118,7 +118,7 @@ export class PaymeService {
         }
 
         if (this.checkTransactionExpiration(transaction.createdAt)) {
-          await this.prismaService.transactions.update({
+          await this.prismaService.transaction.update({
             where: {
               id: transaction.id,
             },
@@ -184,7 +184,7 @@ export class PaymeService {
       };
     }
 
-    const updatedTransaction = await this.prismaService.transactions.update({
+    const updatedTransaction = await this.prismaService.transaction.update({
       where: {
         id: transactionId,
       },
@@ -225,7 +225,7 @@ export class PaymeService {
    * @param {PerformTransactionDto} performTransactionDto
    */
   async performTransaction(performTransactionDto: PerformTransactionDto) {
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId: performTransactionDto.params.id,
       },
@@ -260,7 +260,7 @@ export class PaymeService {
     );
 
     if (expirationTime) {
-      await this.prismaService.transactions.update({
+      await this.prismaService.transaction.update({
         where: {
           id: transaction.id,
         },
@@ -280,32 +280,19 @@ export class PaymeService {
         id: performTransactionDto.params.id,
       };
     }
-    console.log('Terminal: ', transaction.terminal);
-    if (transaction.terminal === 'rkeeper') {
-      const rKeeperParams: CompleteOrderParams = {
-        orderId: transaction.orderId,
-        total: transaction.amount,
-        userId: transaction.userId,
-        spotId: transaction.spotId,
-      };
 
-      const isOrderCompleted =
-        await this.rkeeperService.completeOrder(rKeeperParams);
+    if (!transaction.isTipOnly) {
+      const closeOrderResult = await closeOrder(
+        transaction.terminal,
+        transaction,
+      );
 
-      console.log('isOrderCompleted: ', isOrderCompleted);
-
-      if (!isOrderCompleted) {
-        throw new InternalServerErrorException('Order completion failed');
-      }
-    } else if (transaction.terminal === 'iiko') {
-      console.log('iiko order completed');
-    } else if (transaction.terminal === 'poster') {
-      console.log('poster order completed');
+      console.log('closeOrderResult: ', closeOrderResult);
     }
 
     const performTime = new Date();
 
-    const updatedPayment = await this.prismaService.transactions.update({
+    const updatedPayment = await this.prismaService.transaction.update({
       where: {
         id: transaction.id,
       },
@@ -333,7 +320,7 @@ export class PaymeService {
   async cancelTransaction(cancelTransactionDto: CancelTransactionDto) {
     const transId = cancelTransactionDto.params.id;
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId,
       },
@@ -347,7 +334,7 @@ export class PaymeService {
     }
 
     if (transaction.status === 'PENDING') {
-      const cancelTransaction = await this.prismaService.transactions.update({
+      const cancelTransaction = await this.prismaService.transaction.update({
         where: {
           id: transaction.id,
         },
@@ -378,7 +365,7 @@ export class PaymeService {
       };
     }
 
-    const updatedTransaction = await this.prismaService.transactions.update({
+    const updatedTransaction = await this.prismaService.transaction.update({
       where: {
         id: transaction.id,
       },
@@ -405,7 +392,7 @@ export class PaymeService {
   async checkTransaction(checkTransactionDto: CheckTransactionDto) {
     const transId = checkTransactionDto.params.id;
 
-    const transaction = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transaction.findFirst({
       where: {
         transId,
       },
@@ -436,7 +423,7 @@ export class PaymeService {
    * @param {GetStatementDto} getStatementDto
    */
   async getStatement(getStatementDto: GetStatementDto) {
-    const transactions = await this.prismaService.transactions.findMany({
+    const transactions = await this.prismaService.transaction.findMany({
       where: {
         createdAt: {
           gte: new Date(getStatementDto.params.from),
