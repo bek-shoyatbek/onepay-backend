@@ -5,7 +5,7 @@ import { RKeeperParams } from 'src/types/rkeeper-params';
 
 @Controller('rkeeper')
 export class RkeeperController {
-  constructor(private readonly rkeeperService: RkeeperService) { }
+  constructor(private readonly rkeeperService: RkeeperService) {}
 
   @Get('/orders/:orderId')
   async getOrderWaiterIdAndStationId(@Param('orderId') orderId: string) {
@@ -17,7 +17,7 @@ export class RkeeperController {
     return await this.rkeeperService.completeOrder(completeOrderDto);
   }
 
-  @Get("/generate-url")
+  @Get('/generate-url')
   async generateURL(@Query() params: RKeeperParams) {
     return await this.rkeeperService.generateURL(params);
   }

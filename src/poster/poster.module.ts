@@ -7,4 +7,4 @@ import { ConfigService } from '@nestjs/config';
   controllers: [PosterController],
   providers: [PosterService, ConfigService],
 })
-export class PosterModule { }
+export class PosterModule {}

@@ -4,7 +4,7 @@ import { GetTransactionsQueryParamsDto, TransactionPayloadDto } from './dto';
 
 @Controller('poster')
 export class PosterController {
-  constructor(private readonly posterService: PosterService) { }
+  constructor(private readonly posterService: PosterService) {}
 
   @Post()
   @HttpCode(200)
@@ -12,14 +12,16 @@ export class PosterController {
     console.log(body);
   }
 
-  @Get("transactions")
+  @Get('transactions')
   async getTransactions(@Query() queryParams: GetTransactionsQueryParamsDto) {
-    return await this.posterService.getTransactions(queryParams.dateFrom, queryParams.dateTo);
+    return await this.posterService.getTransactions(
+      queryParams.dateFrom,
+      queryParams.dateTo,
+    );
   }
 
-  @Post("close-transaction")
+  @Post('close-transaction')
   async closeTransaction(@Body() body: TransactionPayloadDto) {
     return await this.posterService.closeTransaction(body);
   }
-
 }

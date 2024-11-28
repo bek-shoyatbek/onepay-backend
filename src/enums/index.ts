@@ -1,2 +1,2 @@
-export * from "./payment-provider.enum";
-export * from "./terminal.enum";
+export * from './payment-provider.enum';
+export * from './terminal.enum';

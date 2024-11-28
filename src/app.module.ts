@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UzumModule } from './payment-services/uzum/uzum.module';
+import { UzumModule } from './transactions/uzum/uzum.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { ClickModule } from './payment-services/click/click.module';
-import { PaymeModule } from './payment-services/payme/payme.module';
-import { PaymentServicesModule } from './payment-services/payment-services.module';
+import { ClickModule } from './transactions/click/click.module';
+import { PaymeModule } from './transactions/payme/payme.module';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './configs/logger.config';
 import { RedirectingModule } from './utils/redirecting/redirecting.module';
@@ -15,10 +14,10 @@ import { RkeeperModule } from './rkeeper/rkeeper.module';
 import { HttpModule } from '@nestjs/axios';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
-import { BotModule } from './bot/bot.module';
 import { APP_FILTER } from '@nestjs/core';
 import { PosterModule } from './poster/poster.module';
-import InternalServerErrorExceptionFilter from './http/internal-server-error.filter';
+import InternalServerErrorExceptionFilter from './filters/internal-server-error.filter';
+import { TransactionsModule } from './transactions/transactions.module';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
 @Module({
@@ -28,7 +27,7 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
     PaymeModule,
     AuthModule,
     ConfigModule.forRoot(),
-    PaymentServicesModule,
+    TransactionsModule,
     WinstonModule.forRoot(loggerConfig),
     RedirectingModule,
     RkeeperModule,
@@ -36,17 +35,16 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
     ServeStaticModule.forRoot({
       rootPath: frontendAssetsDir,
     }),
-    // BotModule,
     PosterModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RkeeperService,
+  providers: [
+    AppService,
+    RkeeperService,
     {
       provide: APP_FILTER,
-      useClass: InternalServerErrorExceptionFilter
-    }
+      useClass: InternalServerErrorExceptionFilter,
+    },
   ],
 })
-
-
-export class AppModule { }
+export class AppModule {}

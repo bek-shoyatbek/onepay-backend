@@ -1,5 +1,5 @@
 export enum PaymentProvider {
-    UZUM = 'uzum',
-    CLICK = 'click',
-    PAYME = 'payme'
+  UZUM = 'uzum',
+  CLICK = 'click',
+  PAYME = 'payme',
 }
