@@ -56,7 +56,7 @@ export class RkeeperService {
     console.log('completeOrderParams: ', completeOrderParams);
     const xmlBodyStr = `<RK7Query>
 	<RK7CMD CMD="PayOrder">
-		<Order guid="{${completeOrderParams.orderId}}"/>
+		<Order guid="${completeOrderParams.orderId}"/>
 		<Cashier code="7"/>
 		<Station code="7"/>
 		<Payment id="1" amount="${completeOrderParams.total}"/>
