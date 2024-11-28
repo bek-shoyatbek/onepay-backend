@@ -23,15 +23,16 @@ model Restaurants {
 }
 
 model Transactions {
-  id       String            @id @default(uuid())
-  orderId  String
-  userId   String
-  spotId   String?
-  status   TransactionStatus @default(INIT)
-  provider String
-  terminal String
-  amount   Float
-  tip      Float
+  id        String            @id @default(uuid())
+  orderId   String
+  userId    String
+  spotId    String?
+  status    TransactionStatus @default(INIT)
+  provider  String
+  terminal  String
+  amount    Float
+  tip       Float
+  isTipOnly Boolean
 
   tableId     String?
   transId     String?
