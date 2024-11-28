@@ -12,8 +12,8 @@ import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
-import { RkeeperService } from 'src/rkeeper/rkeeper.service';
-import { PosterService } from 'src/poster/poster.service';
+import { RkeeperService } from 'src/terminals/rkeeper/rkeeper.service';
+import { PosterService } from 'src/terminals/poster/poster.service';
 import { closeOrder } from '../../utils/terminals';
 
 @Injectable()

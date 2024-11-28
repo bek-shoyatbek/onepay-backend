@@ -6,7 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class InitTransactionDto {
+export class CreateTransactionDto {
   @IsNotEmpty()
   @IsString()
   orderId: string;

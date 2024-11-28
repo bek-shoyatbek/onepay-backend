@@ -8,24 +8,26 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { InitTransactionDto } from './dto/init-transaction.dto';
+import { CreateTransactionDto } from './dto';
 
-@Controller('payment')
+@Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post('init')
+  @Post('')
   @UsePipes(
     new ValidationPipe({
       transform: true,
     }),
   )
   @HttpCode(HttpStatus.OK)
-  async initTransaction(@Body() initTransactionDto: InitTransactionDto) {
-    initTransactionDto.total = initTransactionDto.total * 100;
-    initTransactionDto.tip = initTransactionDto.tip * 100;
+  async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
+    createTransactionDto.total = createTransactionDto.total * 100;
+    createTransactionDto.tip = createTransactionDto.tip * 100;
 
-    initTransactionDto.terminal = 'rkeeper';
-    return await this.transactionsService.initTransaction(initTransactionDto);
+    createTransactionDto.terminal = 'rkeeper';
+    return await this.transactionsService.createTransaction(
+      createTransactionDto,
+    );
   }
 }

@@ -2,11 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as process from 'node:process';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { HttpExceptionFilter } from './filters/http.filter';
+import { HttpExceptionFilter } from './shared/filters/http.filter';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import morgan from 'morgan';
-import InternalServerErrorExceptionFilter from './filters/internal-server-error.filter';
+import InternalServerErrorExceptionFilter from './shared/filters/internal-server-error.filter';
 import { ValidationPipe } from '@nestjs/common';
 
 const PORT = process.env.PORT || 6500;

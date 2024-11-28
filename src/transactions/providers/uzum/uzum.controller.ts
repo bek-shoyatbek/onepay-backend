@@ -5,7 +5,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ConfirmTransactionDto } from './dto/confirm-transaction.dto';
 import { ReverseTransactionDto } from './dto/reverse-transaction.dto';
 import { CheckTransactionStatusDto } from './dto/check-status.dto';
-import { UzumBasicAuthGuard } from 'src/auth/guards/uzum.guard';
+import { UzumBasicAuthGuard } from 'src/transactions/providers/uzum/guards/uzum.guard';
 
 @Controller('uzum')
 export class UzumController {

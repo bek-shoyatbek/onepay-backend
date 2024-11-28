@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { InitTransactionDto } from './dto/init-transaction.dto';
 import { PrismaService } from 'src/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
-import { PaymentProvider, Terminal } from 'src/enums';
+import { PaymentProvider, Terminal } from 'src/shared/enums';
+import { CreateTransactionDto } from './dto';
 
 @Injectable()
 export class TransactionsService {
@@ -11,28 +11,28 @@ export class TransactionsService {
     private readonly redirectingService: RedirectingService,
   ) {}
 
-  async initTransaction(initTransactionDto: InitTransactionDto) {
-    console.log('initTransactionDto: ', initTransactionDto);
-    const isTipOnly = initTransactionDto.isTipOnly;
+  async createTransaction(createTransactionDto: CreateTransactionDto) {
+    console.log('createTransactionDto: ', createTransactionDto);
+    const isTipOnly = createTransactionDto.isTipOnly;
     const newTransaction = await this.prismaService.transaction.create({
       data: {
-        amount: initTransactionDto.total,
-        provider: initTransactionDto.provider,
+        amount: createTransactionDto.total,
+        provider: createTransactionDto.provider,
+        userId: createTransactionDto.userId,
+        orderId: createTransactionDto.orderId,
+        tip: createTransactionDto.tip,
         isTipOnly,
-        userId: initTransactionDto.userId,
-        orderId: initTransactionDto.orderId,
-        tip: initTransactionDto.tip,
-        tableId: initTransactionDto.spotTabletId,
-        terminal: initTransactionDto.terminal as Terminal,
-        spotId: initTransactionDto.spotId,
+        tableId: createTransactionDto.spotTabletId,
+        terminal: createTransactionDto.terminal as Terminal,
+        spotId: createTransactionDto.spotId,
         status: 'INIT',
       },
     });
 
     const redirectUrl = this.redirectingService.generateRedirectUrl(
-      initTransactionDto.provider as PaymentProvider,
+      createTransactionDto.provider as PaymentProvider,
       {
-        amount: initTransactionDto.total + initTransactionDto.tip,
+        amount: createTransactionDto.total + createTransactionDto.tip,
         transactionId: newTransaction.id,
       },
     );

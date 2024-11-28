@@ -1,7 +1,7 @@
 import { Transaction } from '@prisma/client';
-import { CompleteOrderParams } from '../../rkeeper/types/complete-order.params';
+import { CompleteOrderParams } from '../../terminals/rkeeper/types/complete-order.params';
 import { InternalServerErrorException } from '@nestjs/common';
-import { RkeeperService } from '../../rkeeper/rkeeper.service';
+import { RkeeperService } from '../../terminals/rkeeper/rkeeper.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 
