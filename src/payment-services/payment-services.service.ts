@@ -16,7 +16,9 @@ export class PaymentServicesService {
     const isTipOnly = initTransactionDto.isTipOnly;
     const newTransaction = await this.prismaService.transaction.create({
       data: {
-        amount: isTipOnly ? initTransactionDto.tip : initTransactionDto.total + initTransactionDto.tip,
+        amount: isTipOnly
+          ? initTransactionDto.tip
+          : initTransactionDto.total + initTransactionDto.tip,
         provider: initTransactionDto.provider,
         isTipOnly,
         userId: initTransactionDto.userId,
