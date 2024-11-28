@@ -65,9 +65,9 @@ export class PosterService {
 
   /**
    * Closes a transaction in the Poster system
-   * @param transaction Transaction details to be closed
    * @returns Promise with the API response
    * @throws HttpException if the API request fails
+   * @param payload
    */
   async closeTransaction(
     payload: TransactionPayloadDto,

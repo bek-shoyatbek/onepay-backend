@@ -1,4 +1,4 @@
-import { Transactions } from '@prisma/client';
+import { Transaction } from '@prisma/client';
 import { CompleteOrderParams } from '../../rkeeper/types/complete-order.params';
 import { InternalServerErrorException } from '@nestjs/common';
 import { RkeeperService } from '../../rkeeper/rkeeper.service';
@@ -7,7 +7,7 @@ import { HttpService } from '@nestjs/axios';
 
 export const closeOrder = async (
   terminal: string,
-  transaction: Transactions,
+  transaction: Transaction,
 ) => {
   switch (terminal) {
     case 'poster': {
