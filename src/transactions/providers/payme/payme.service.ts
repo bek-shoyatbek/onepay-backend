@@ -12,18 +12,11 @@ import { CheckTransactionDto } from './dto/check-transaction.dto';
 import { PaymeError } from './constants/payme-error';
 import { DateTime } from 'luxon';
 import { CancelingReasons } from './constants/canceling-reasons';
-import { RkeeperService } from 'src/terminals/rkeeper/rkeeper.service';
-import { PosterService } from 'src/terminals/poster/poster.service';
-import { closeOrder } from "../../../utils/terminals";
-
+import { closeOrder } from '../../../utils/terminals';
 
 @Injectable()
 export class PaymeService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly rkeeperService: RkeeperService,
-    private readonly posterService: PosterService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;
