@@ -38,6 +38,7 @@ export class PosterService {
           payed_cash: posterCloseOrderPayload.total,
         },
       });
+      console.log('axiosResponse: ', response);
 
       return response.data.response;
     } catch (error) {
