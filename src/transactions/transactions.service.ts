@@ -32,7 +32,7 @@ export class TransactionsService {
     const redirectUrl = this.redirectingService.generateRedirectUrl(
       createTransactionDto.provider as PaymentProvider,
       {
-        amount: createTransactionDto.total + createTransactionDto.tip,
+        amount: createTransactionDto.total,
         transactionId: newTransaction.id,
       },
     );
