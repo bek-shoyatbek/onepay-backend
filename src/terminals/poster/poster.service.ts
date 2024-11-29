@@ -37,6 +37,9 @@ export class PosterService {
           transaction_id: posterCloseOrderPayload.orderId,
           payed_cash: posterCloseOrderPayload.total,
         },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       console.log('axiosResponse: ', response);
 
