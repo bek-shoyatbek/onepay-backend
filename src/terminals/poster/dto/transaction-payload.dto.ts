@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class TransactionPayloadDto {
+export class PosterCloseOrderPayload {
   @IsNotEmpty()
   @IsString()
   spotId: string;
@@ -11,7 +11,7 @@ export class TransactionPayloadDto {
 
   @IsNotEmpty()
   @IsString()
-  transactionId: string;
+  orderId: string;
 
   @IsNotEmpty()
   @IsNumber()

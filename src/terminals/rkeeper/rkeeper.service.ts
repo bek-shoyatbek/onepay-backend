@@ -50,9 +50,7 @@ export class RkeeperService {
    * @returns {Promise<boolean>}
    * @param completeOrderParams
    */
-  async completeOrder(
-    completeOrderParams: CompleteOrderParams,
-  ): Promise<boolean> {
+  async closeOrder(completeOrderParams: CompleteOrderParams): Promise<boolean> {
     console.log('completeOrderParams: ', completeOrderParams);
     const xmlBodyStr = `<RK7Query>
 	<RK7CMD CMD="PayOrder">

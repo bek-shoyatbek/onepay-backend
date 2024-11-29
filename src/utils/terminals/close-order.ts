@@ -4,6 +4,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { RkeeperService } from '../../terminals/rkeeper/rkeeper.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
+import { PosterService } from '../../terminals/poster/poster.service';
+import { PosterCloseOrderPayload } from '../../terminals/poster/dto';
 
 export const closeOrder = async (
   terminal: string,
@@ -11,8 +13,22 @@ export const closeOrder = async (
 ) => {
   switch (terminal) {
     case 'poster': {
-      // TODO
-      throw new Error('Not implemented');
+      const posterService = new PosterService(new ConfigService());
+
+      const payload: PosterCloseOrderPayload = {
+        spotId: transaction.spotId,
+        spotTabletId: transaction.tableId,
+        orderId: transaction.orderId,
+        total: transaction.amount / 100 - transaction.tip / 100,
+      };
+
+      posterService.validateCloseOrderPayload(payload);
+
+      const response = await posterService.closeOrder(payload);
+      if (response.err_code !== 0) {
+        throw new InternalServerErrorException('Order completion failed');
+      }
+      break;
     }
     case 'rkeeper': {
       const rkeeperService = new RkeeperService(
@@ -26,8 +42,7 @@ export const closeOrder = async (
         spotId: transaction.spotId,
       };
 
-      const isOrderCompleted =
-        await rkeeperService.completeOrder(rKeeperParams);
+      const isOrderCompleted = await rkeeperService.closeOrder(rKeeperParams);
 
       if (!isOrderCompleted) {
         throw new InternalServerErrorException('Order completion failed');

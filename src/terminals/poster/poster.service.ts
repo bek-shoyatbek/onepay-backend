@@ -1,20 +1,15 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import {
-  TransactionData,
-  TransactionPayloadDto,
-  TransactionsResponse,
-} from './dto';
+import { PosterCloseOrderPayload } from './dto';
 
 @Injectable()
 export class PosterService {
   private readonly api: AxiosInstance;
-  private readonly baseUrl = 'https://joinposter.com/api';
+  private readonly posterBaseUrl = 'https://joinposter.com/api';
   private readonly token: string;
 
   constructor(private readonly configService: ConfigService) {
-    // Get token from environment variables using ConfigService
     this.token = this.configService.get<string>('POSTER_API_TOKEN');
 
     if (!this.token) {
@@ -23,68 +18,28 @@ export class PosterService {
       );
     }
 
-    // Create axios instance with default config
     this.api = axios.create({
-      baseURL: this.baseUrl,
+      baseURL: this.posterBaseUrl,
       timeout: 5000, // 5 seconds timeout
     });
   }
 
-  async getTransactions(
-    dateFrom?: string,
-    dateTo?: string,
-  ): Promise<TransactionData[]> {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-
-      if (!dateFrom) {
-        dateFrom = today;
-      }
-
-      if (!dateTo) {
-        dateTo = today;
-      }
-
-      const response = await this.api({
-        method: 'get',
-        url: `/transactions.getTransactions?token=${this.token}&date_from=${dateFrom}&date_to=${dateTo}`,
-      });
-      const data = response.data as TransactionsResponse;
-
-      return data.response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new HttpException(
-          `Failed to get today transactions: ${error.message}`,
-          error.response?.status || 500,
-        );
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Closes a transaction in the Poster system
-   * @returns Promise with the API response
-   * @throws HttpException if the API request fails
-   * @param payload
-   */
-  async closeTransaction(
-    payload: TransactionPayloadDto,
-  ): Promise<{ response: { err_code: number } }> {
+  async closeOrder(
+    posterCloseOrderPayload: PosterCloseOrderPayload,
+  ): Promise<{ err_code: number }> {
     try {
       const response = await this.api({
         method: 'post',
         url: `/transactions.closeTransaction?token=${this.token}`,
         data: {
-          spot_id: payload.spotId,
-          spot_tablet_id: payload.spotTabletId,
-          transaction_id: payload.transactionId,
-          payed_cash: payload.total,
+          spot_id: posterCloseOrderPayload.spotId,
+          spot_tablet_id: posterCloseOrderPayload.spotTabletId,
+          transaction_id: posterCloseOrderPayload.orderId,
+          payed_cash: posterCloseOrderPayload.total,
         },
       });
 
-      return response.data;
+      return response.data.response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         throw new HttpException(
@@ -94,5 +49,17 @@ export class PosterService {
       }
       throw error;
     }
+  }
+
+  validateCloseOrderPayload(payload: PosterCloseOrderPayload) {
+    if (
+      !payload.spotId ||
+      !payload.spotTabletId ||
+      !payload.orderId ||
+      !payload.total
+    ) {
+      throw new Error('Invalid close order payload');
+    }
+    return true;
   }
 }

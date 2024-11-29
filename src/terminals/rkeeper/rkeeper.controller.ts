@@ -12,11 +12,6 @@ export class RkeeperController {
     return await this.rkeeperService.getOrderWaiterIdAndStationId(orderId);
   }
 
-  @Post('/orders/complete')
-  async completeOrder(@Body() completeOrderDto: CompleteOrderParams) {
-    return await this.rkeeperService.completeOrder(completeOrderDto);
-  }
-
   @Get('/generate-url')
   async generateURL(@Query() params: RKeeperParams) {
     return await this.rkeeperService.generateURL(params);

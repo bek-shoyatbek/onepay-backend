@@ -25,7 +25,6 @@ export class TransactionsController {
     createTransactionDto.total = createTransactionDto.total * 100;
     createTransactionDto.tip = createTransactionDto.tip * 100;
 
-    createTransactionDto.terminal = 'rkeeper';
     return await this.transactionsService.createTransaction(
       createTransactionDto,
     );
