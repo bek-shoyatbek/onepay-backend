@@ -31,7 +31,7 @@ export class CreateTransactionDto {
 
   @IsOptional()
   @IsString()
-  spotTabletId?: string;
+  tableId?: string;
 
   @IsNotEmpty()
   @IsString()
