@@ -22,7 +22,7 @@ export class TransactionsService {
         orderId: createTransactionDto.orderId,
         tip: createTransactionDto.tip,
         isTipOnly,
-        tableId: createTransactionDto.spotTabletId,
+        tableId: createTransactionDto.tableId,
         terminal: createTransactionDto.terminal as Terminal,
         spotId: createTransactionDto.spotId,
         status: 'INIT',
