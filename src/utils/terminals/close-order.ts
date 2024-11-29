@@ -25,9 +25,10 @@ export const closeOrder = async (
       // posterService.validateCloseOrderPayload(payload);
 
       const response = await posterService.closeOrder(payload);
-      if (response.err_code !== 0) {
-        throw new InternalServerErrorException('Order completion failed');
-      }
+      console.log('response: ', response);
+      // if (response?.err_code !== 0) {
+      //   throw new InternalServerErrorException('Order completion failed');
+      // }
       break;
     }
     case 'rkeeper': {
