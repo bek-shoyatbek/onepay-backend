@@ -28,7 +28,7 @@ export class TransactionsService {
         status: 'INIT',
       },
     });
-
+    console.log('newTransaction: ', newTransaction);
     const redirectUrl = this.redirectingService.generateRedirectUrl(
       createTransactionDto.provider as PaymentProvider,
       {
