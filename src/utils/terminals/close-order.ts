@@ -14,7 +14,6 @@ export const closeOrder = async (
   switch (terminal) {
     case 'poster': {
       const posterService = new PosterService(new ConfigService());
-
       const payload: PosterCloseOrderPayload = {
         spotId: transaction.spotId,
         spotTabletId: transaction.tableId,
@@ -22,7 +21,8 @@ export const closeOrder = async (
         total: transaction.amount / 100 - transaction.tip / 100,
       };
 
-      posterService.validateCloseOrderPayload(payload);
+      console.log('payload: ', payload);
+      // posterService.validateCloseOrderPayload(payload);
 
       const response = await posterService.closeOrder(payload);
       if (response.err_code !== 0) {
