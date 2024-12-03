@@ -1,0 +1,12 @@
+export class CreateFinanceTransactionDto {
+  id: number;
+  type: number;
+  category: number;
+  user_id: number;
+  amount_from: number;
+  amount_to: number;
+  account_from: number;
+  account_to: number;
+  date: string;
+  comment: string;
+}

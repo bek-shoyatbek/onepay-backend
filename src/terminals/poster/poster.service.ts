@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { PosterCloseOrderPayload } from './dto';
@@ -48,6 +48,91 @@ export class PosterService {
       if (axios.isAxiosError(error)) {
         throw new HttpException(
           `Failed to close transaction: ${error.message}`,
+          error.response?.status || 500,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getDashTransactions(dateFrom?: string, dateTo?: string) {
+    try {
+      const response = await this.api({
+        method: 'get',
+        url: `/dash.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new HttpException(
+          `Failed to get transactions: ${error.message}`,
+          error.response?.status || 500,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getTransactions(dateFrom: string, dateTo: string) {
+    try {
+      const response = await this.api({
+        method: 'get',
+        url: `/transactions.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new HttpException(
+          `Failed to get transactions: ${error.message}`,
+          error.response?.status || 500,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getFinanceTransactions(dateFrom?: string, dateTo?: string) {
+    try {
+      const response = await this.api({
+        method: 'get',
+        url: `/finance.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new HttpException(
+          `Failed to get transactions: ${error.message}`,
+          error.response?.status || 500,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async createFianceTransaction(payload: ) {
+    try {
+      const response = await this.api({
+        method: 'post',
+        url: `/finance.createTransaction?token=${this.token}`,
+        data: payload,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new HttpException(
+          `Failed to create transactions: ${error.message}`,
           error.response?.status || 500,
         );
       }
