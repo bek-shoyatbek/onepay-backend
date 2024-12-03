@@ -118,7 +118,7 @@ export class PosterService {
     }
   }
 
-  async createFianceTransaction(payload: any) {
+  async createFianceTransaction(payload: ) {
     try {
       const response = await this.api({
         method: 'post',
