@@ -9,7 +9,7 @@ import {
 export class CreateTransactionDto {
   @IsNotEmpty()
   @IsString()
-  orderId: string;
+  orderId?: string;
 
   @IsString()
   userId: string;
