@@ -22,6 +22,7 @@ export class TransactionsController {
   )
   @HttpCode(HttpStatus.OK)
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
+    console.log('createTransactionDto: ', createTransactionDto);
     createTransactionDto.total = createTransactionDto.total * 100;
     createTransactionDto.tip = createTransactionDto.tip * 100;
 

@@ -12,14 +12,15 @@ export class TransactionsService {
   ) {}
 
   async createTransaction(createTransactionDto: CreateTransactionDto) {
-    console.log('createTransactionDto: ', createTransactionDto);
     const isTipOnly = createTransactionDto.isTipOnly;
     const newTransaction = await this.prismaService.transaction.create({
       data: {
         amount: createTransactionDto.total,
         provider: createTransactionDto.provider,
         userId: createTransactionDto.userId,
-        orderId: createTransactionDto.orderId,
+        orderId:
+          createTransactionDto?.orderId ||
+          Math.floor(Math.random() * 1000000) + '',
         tip: createTransactionDto.tip,
         isTipOnly,
         tableId: createTransactionDto.tableId,
