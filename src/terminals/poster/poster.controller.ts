@@ -4,11 +4,12 @@ import {
   Controller,
   Get,
   HttpCode,
-  Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { PosterService } from './poster.service';
+import { CloseTransactionDto } from './dto';
 
 @Controller('poster')
 export class PosterController {
@@ -20,9 +21,13 @@ export class PosterController {
     console.log(body);
   }
 
-  @Get('transactions/:transactionType')
+  @Put('close-transaction')
+  async closeTransaction(@Body() closeTransactionDto: CloseTransactionDto) {
+    return this.posterService.closeTransaction(closeTransactionDto);
+  }
+
+  @Get('transactions')
   async getTransactions(
-    @Param('transactionType') transactionType: 'dash' | 'transaction',
     @Query() queryParams: { dateFrom?: string; dateTo?: string },
   ) {
     if (!queryParams.dateFrom || !queryParams.dateTo) {
@@ -39,22 +44,9 @@ export class PosterController {
       );
     }
 
-    if (transactionType === 'dash') {
-      return this.posterService.getDashTransactions(
-        queryParams.dateFrom,
-        queryParams.dateTo,
-      );
-    }
-
-    if (transactionType === 'transaction') {
-      return this.posterService.getTransactions(
-        queryParams.dateFrom,
-        queryParams.dateTo,
-      );
-    }
-
-    throw new BadRequestException(
-      'transactionType must be dash or transaction',
+    return this.posterService.getTransactions(
+      queryParams.dateFrom,
+      queryParams.dateTo,
     );
   }
 }

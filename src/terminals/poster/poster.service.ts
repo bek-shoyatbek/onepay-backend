@@ -1,7 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { PosterCloseOrderPayload } from './dto';
+import { CloseTransactionDto } from './dto';
+import { Transaction } from './interfaces';
 
 @Injectable()
 export class PosterService {
@@ -24,25 +25,34 @@ export class PosterService {
     });
   }
 
-  async closeOrder(
-    posterCloseOrderPayload: PosterCloseOrderPayload,
+  async closeTransaction(
+    closeTransactionDto: CloseTransactionDto,
   ): Promise<{ err_code: number }> {
-    try {
-      const response = await this.api({
-        method: 'post',
-        url: `/transactions.closeTransaction?token=${this.token}`,
-        data: {
-          spot_id: posterCloseOrderPayload.spotId,
-          spot_tablet_id: posterCloseOrderPayload.spotTabletId,
-          transaction_id: posterCloseOrderPayload.orderId,
-          payed_cash: posterCloseOrderPayload.total,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      console.log('axiosResponse: ', response);
+    const transaction = await this.getTransaction(closeTransactionDto);
 
+    if (!transaction) {
+      throw new HttpException('Transaction not found', 404);
+    }
+
+    const payload = {
+      spot_id: +transaction.spot_id,
+      spot_tablet_id: +transaction.table_id,
+      transaction_id: +transaction.transaction_id,
+      payed_cash: +transaction.sum,
+    };
+    console.log('payload: ', payload);
+
+    try {
+      const response = await this.api.post(
+        `/transactions.closeTransaction?token=${this.token}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      console.log('axiosResponse: ', response.data);
       return response.data.response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -55,7 +65,10 @@ export class PosterService {
     }
   }
 
-  async getDashTransactions(dateFrom?: string, dateTo?: string) {
+  async getTransactions(
+    dateFrom?: string,
+    dateTo?: string,
+  ): Promise<Transaction[]> {
     try {
       const response = await this.api({
         method: 'get',
@@ -76,79 +89,20 @@ export class PosterService {
     }
   }
 
-  async getTransactions(dateFrom: string, dateTo: string) {
-    try {
-      const response = await this.api({
-        method: 'get',
-        url: `/transactions.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data.response;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new HttpException(
-          `Failed to get transactions: ${error.message}`,
-          error.response?.status || 500,
-        );
-      }
-      throw error;
-    }
+  private async getTodayTransactions() {
+    const todayYYYYMMDD = new Date().toISOString().split('T')[0];
+    return await this.getTransactions(todayYYYYMMDD, todayYYYYMMDD);
   }
 
-  async getFinanceTransactions(dateFrom?: string, dateTo?: string) {
-    try {
-      const response = await this.api({
-        method: 'get',
-        url: `/finance.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data.response;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new HttpException(
-          `Failed to get transactions: ${error.message}`,
-          error.response?.status || 500,
-        );
-      }
-      throw error;
-    }
-  }
+  private async getTransaction(details: CloseTransactionDto) {
+    const todayTransactions = await this.getTodayTransactions();
 
-  async createFianceTransaction(payload: any) {
-    try {
-      const response = await this.api({
-        method: 'post',
-        url: `/finance.createTransaction?token=${this.token}`,
-        data: payload,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data.response;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new HttpException(
-          `Failed to create transactions: ${error.message}`,
-          error.response?.status || 500,
-        );
-      }
-      throw error;
-    }
-  }
-
-  validateCloseOrderPayload(payload: PosterCloseOrderPayload) {
-    if (
-      !payload.spotId ||
-      !payload.spotTabletId ||
-      !payload.orderId ||
-      !payload.total
-    ) {
-      throw new Error('Invalid close order payload');
-    }
-    return true;
+    return todayTransactions.find((transaction) => {
+      return (
+        transaction.spot_id === details.spotId &&
+        transaction.table_id === details.spotTabletId &&
+        transaction.sum === details.total
+      );
+    });
   }
 }
