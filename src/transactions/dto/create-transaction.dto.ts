@@ -7,8 +7,8 @@ import {
 } from 'class-validator';
 
 export class CreateTransactionDto {
-  @IsNotEmpty()
   @IsString()
+  @IsOptional()
   orderId?: string;
 
   @IsString()
