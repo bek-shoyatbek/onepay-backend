@@ -7,9 +7,13 @@ export class CloseTransactionDto {
 
   @IsString()
   @IsNotEmpty()
-  spotTabletId: string;
+  total: string;
 
   @IsString()
   @IsNotEmpty()
-  total: string;
+  userId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  tableId: string;
 }

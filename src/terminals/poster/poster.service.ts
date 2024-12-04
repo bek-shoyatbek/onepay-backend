@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { CloseTransactionDto } from './dto';
@@ -14,7 +18,7 @@ export class PosterService {
     this.token = this.configService.get<string>('POSTER_API_TOKEN');
 
     if (!this.token) {
-      throw new Error(
+      throw new InternalServerErrorException(
         'POSTER_API_TOKEN is not defined in the environment variables',
       );
     }
@@ -36,11 +40,10 @@ export class PosterService {
 
     const payload = {
       spot_id: +transaction.spot_id,
-      spot_tablet_id: +transaction.table_id,
+      spot_tablet_id: '1', // TODO: add tablet id
       transaction_id: +transaction.transaction_id,
-      payed_cash: +transaction.sum,
+      payed_cash: +transaction.sum / 100,
     };
-    console.log('payload: ', payload);
 
     try {
       const response = await this.api.post(
@@ -100,8 +103,9 @@ export class PosterService {
     return todayTransactions.find((transaction) => {
       return (
         transaction.spot_id === details.spotId &&
-        transaction.table_id === details.spotTabletId &&
-        transaction.sum === details.total
+        transaction.table_id === details.tableId &&
+        transaction.sum === details.total &&
+        transaction.user_id === details.userId
       );
     });
   }
