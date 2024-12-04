@@ -5,7 +5,7 @@ import { RkeeperService } from '../../terminals/rkeeper/rkeeper.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { PosterService } from '../../terminals/poster/poster.service';
-import { PosterCloseOrderPayload } from '../../terminals/poster/dto';
+import { CloseTransactionDto } from '../../terminals/poster/dto';
 
 export const closeOrder = async (
   terminal: string,
@@ -14,22 +14,18 @@ export const closeOrder = async (
   switch (terminal) {
     case 'poster': {
       const posterService = new PosterService(new ConfigService());
-      const payload: PosterCloseOrderPayload = {
+      const payload: CloseTransactionDto = {
         spotId: transaction.spotId,
-        spotTabletId: transaction.tableId,
-        orderId: transaction.orderId,
-        total: transaction.amount / 100 - transaction.tip / 100,
+        tableId: transaction.tableId,
+        total: transaction.amount + '',
+        userId: transaction.userId,
       };
 
-      console.log('payload: ', payload);
-      // posterService.validateCloseOrderPayload(payload);
-
-      const response = await posterService.closeOrder(payload);
-      console.log('response: ', response);
-      // if (response?.err_code !== 0) {
-      //   throw new InternalServerErrorException('Order completion failed');
-      // }
-      break;
+      const response = await posterService.closeTransaction(payload);
+      if (response?.err_code !== 0) {
+        throw new InternalServerErrorException("Couldn't close order");
+      }
+      return true;
     }
     case 'rkeeper': {
       const rkeeperService = new RkeeperService(
