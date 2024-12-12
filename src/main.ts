@@ -15,6 +15,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const frontendAssetsDir = join(__dirname, '..', 'frontend');
 
+  app.setBaseViewsDir(join(__dirname, '..', 'src/views'));
+
+  app.setViewEngine('ejs');
+
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
   app.use(morgan('dev'));

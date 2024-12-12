@@ -1,0 +1,72 @@
+<%- include('../../partials/admin-header') %>
+
+<div class="container">
+  <h1>Create New Restaurant</h1>
+
+  <% if (locals.message) { %>
+  <div class="alert <%= success ? 'alert-success' : 'alert-danger' %>">
+    <%= message %>
+  </div>
+  <% } %>
+
+  <form id="createRestaurantForm" class="form">
+    <div class="form-group">
+      <label for="title" class="form-label">Restaurant Title</label>
+      <input type="text" id="title" name="title" required class="form-input" placeholder="Enter restaurant name">
+    </div>
+
+    <div class="form-group">
+      <label for="location" class="form-label">Location</label>
+      <input type="text" id="location" name="location" required class="form-input" placeholder="Enter restaurant location">
+    </div>
+
+    <div class="form-group">
+      <label for="image" class="form-label">Image URL (Optional)</label>
+      <input type="url" id="image" name="image" class="form-input" placeholder="Enter restaurant image URL">
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="submit" class="btn btn-primary">
+        Create Restaurant
+      </button>
+      <a href="/api/v1/admins/restaurants" class="btn btn-secondary">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('createRestaurantForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Create an object from form data instead of FormData
+    const restaurantData = {
+      title: document.getElementById('title').value,
+      location: document.getElementById('location').value,
+      image: document.getElementById('image').value || null // Use null if no image
+    };
+
+    try {
+      const response = await fetch('/api/v1/admins/restaurants', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json' // Correct content type for JSON
+        },
+        body: JSON.stringify(restaurantData) // Convert to JSON string
+      });
+
+      if (response.ok) {
+        window.location.href = '/api/v1/admins/restaurants';
+      } else {
+        const result = await response.json();
+        alert(result.message || 'Failed to create restaurant');
+      }
+    } catch (error) {
+      console.error('Create failed:', error);
+      alert('An error occurred');
+    }
+  });
+</script>
+
+<%- include('../../partials/admin-footer') %>

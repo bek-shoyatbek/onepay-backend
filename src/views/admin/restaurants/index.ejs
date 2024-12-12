@@ -1,0 +1,116 @@
+<%- include('../../partials/admin-header') %>
+
+<div class="container">
+  <h1>Restaurants Management</h1>
+
+  <div class="header-actions">
+    <h2>Total Restaurants: <%= pagination.totalRestaurants %></h2>
+    <a href="/api/v1/admins/restaurants/create" class="btn btn-primary">
+      Add New Restaurant
+    </a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Location</th>
+        <th>Waiters</th>
+        <th>Admins</th>
+        <th>Tips</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% restaurants.forEach(restaurant => { %>
+      <tr>
+        <td><%= restaurant.title %></td>
+        <td><%= restaurant.location %></td>
+        <td class="text-center"><%= restaurant._count.waiters %></td>
+        <td class="text-center"><%= restaurant._count.admins %></td>
+        <td class="text-center"><%= restaurant._count.tips %></td>
+        <td class="text-center">
+          <div class="action-buttons">
+            <a href="/api/v1/admins/restaurants/<%= restaurant.id %>/edit" class="btn btn-warning btn-sm" aria-label="Edit restaurant <%= restaurant.title %>">
+              Edit
+            </a>
+            <button class="btn btn-danger btn-sm delete-restaurant" data-id="<%= restaurant.id %>" aria-label="Delete restaurant <%= restaurant.title %>">
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <% if (pagination.currentPage > 1) { %>
+    <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-secondary" aria-label="Previous page">
+      Previous
+    </a>
+    <% } %>
+
+    <% if (pagination.currentPage < pagination.totalPages) { %>
+    <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-secondary" aria-label="Next page">
+      Next
+    </a>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.delete-restaurant').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const restaurantId = e.currentTarget.dataset.id;
+
+        if (confirm('Are you sure you want to delete this restaurant?')) {
+          try {
+            const response = await fetch(`/api/v1/admins/restaurants/${restaurantId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const result = await response.json();
+
+
+            if (response.ok) {
+              alert(result.message);
+              location.reload();
+            } else {
+              alert(result.message || 'Failed to delete the restaurant.');
+            }
+          } catch (error) {
+            console.error('Delete failed:', error);
+            alert('An error occurred while deleting the restaurant.');
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../../partials/admin-footer') %>
+
+<style>
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+</style>

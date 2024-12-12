@@ -8,85 +8,89 @@ datasource db {
 }
 
 model Restaurant {
-  id               String   @id @default(uuid())
-  name             String
-  image            String
-  adminTelegramIds String[] // Postgres supports arrays natively
+  id       String  @id @default(uuid())
+  title    String
+  location String
+  image    String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations (optional)
   waiters Waiter[]
   admins  Admin[]
   tips    TipTransaction[]
+
+  @@index([title])
+  @@map("restaurants")
 }
 
-model Transaction {
-  id        String            @id @default(uuid())
-  orderId   String
-  userId    String
-  spotId    String?
+model TransactionSchema {
+  id        String            @id @default(uuid()) @map("transaction_id")
+  orderId   String            @map("order_id")
+  userId    String            @map("user_id")
+  spotId    String?           @map("spot_id")
   status    TransactionStatus @default(INIT)
   provider  String
   terminal  String
   amount    Float
   tip       Float
-  isTipOnly Boolean
+  isTipOnly Boolean           @map("is_tip_only")
 
-  tableId     String?
-  transId     String?
-  prepareId   Int?
-  performTime DateTime?
-  cancelTime  DateTime?
-  state       Int?
-  reason      Int?
+  tableId     String?   @map("table_id")
+  transId     String?   @map("payme_trans_id")
+  prepareId   Int?      @map("click_prepare_id")
+  performTime DateTime? @map("payme_perform_time")
+  cancelTime  DateTime? @map("payme_cancel_time")
+  state       Int?      @map("payme_state")
+  reason      Int?      @map("payme_reason")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("transactions")
 }
 
 model Waiter {
-  id           String  @id @default(uuid())
-  restaurantId String
-  waiterId     String
+  id           String  @id @default(uuid()) @map("waiter_id")
+  restaurantId String  @map("restaurant_id")
   phone        String?
-  telegramId   String?
+  telegramId   String? @map("telegram_id")
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
 
-  // Relation to restaurant
   restaurant Restaurant       @relation(fields: [restaurantId], references: [id])
-  // Relation to tip transactions
   tips       TipTransaction[]
 
   @@index([restaurantId])
+  @@map("waiters")
 }
 
 model Admin {
-  id           String  @id @default(uuid())
-  restaurantId String
-  adminId      String
+  id           String  @id @default(uuid()) @map("admin_id")
+  email        String
+  password     String
+  restaurantId String  @map("restaurant_id")
   phone        String?
-  telegramId   String?
+  telegramId   String? @map("telegram_id")
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
 
-  // Relation to restaurant
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   @@index([restaurantId])
+  @@map("admins")
 }
 
 model TipTransaction {
-  id           String @id @default(uuid())
+  id           String @id @default(uuid()) @map("tip_transaction_id")
   amount       Float
-  restaurantId String
-  waiterId     String
+  restaurantId String @map("restaurant_id")
+  waiterId     String @map("waiter_id")
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
 
   // Relations
@@ -95,6 +99,17 @@ model TipTransaction {
 
   @@index([restaurantId])
   @@index([waiterId])
+  @@map("tips")
+}
+
+model SuperAdmin {
+  id        String   @id @map("super_admin_id")
+  email     String
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("super_admins")
 }
 
 enum TransactionStatus {

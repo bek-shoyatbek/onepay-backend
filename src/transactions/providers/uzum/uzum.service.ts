@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CheckTransactionDto } from './dto/check-transaction.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrorStatusCode } from './constants/error-status-codes';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { ConfigService } from '@nestjs/config';
@@ -53,7 +53,7 @@ export class UzumService {
     });
 
     if (!transaction) {
-      error('Transaction not found');
+      error('TransactionSchema not found');
       throw new BadRequestException({
         serviceId: checkTransactionDto.serviceId,
         timestamp: new Date().valueOf(),
@@ -63,7 +63,7 @@ export class UzumService {
     }
 
     if (transaction.status !== 'INIT') {
-      error('Transaction already exists');
+      error('TransactionSchema already exists');
       throw new BadRequestException({
         serviceId: checkTransactionDto.serviceId,
         timestamp: new Date().valueOf(),
@@ -72,7 +72,7 @@ export class UzumService {
       });
     }
 
-    info('Transaction found', transaction);
+    info('TransactionSchema found', transaction);
 
     return {
       serviceId: checkTransactionDto.serviceId,
@@ -110,7 +110,7 @@ export class UzumService {
       });
 
     if (isExistingTransaction && isExistingTransaction.status !== 'INIT') {
-      error('Transaction already exists');
+      error('TransactionSchema already exists');
       throw new BadRequestException({
         serviceId,
         timestamp: new Date().valueOf(),

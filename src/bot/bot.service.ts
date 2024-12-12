@@ -1,7 +1,7 @@
 import { InjectBot } from '@grammyjs/nestjs';
 import { Injectable } from '@nestjs/common';
 import { Bot, Context, Keyboard, SessionFlavor } from 'grammy';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 interface SessionData {
   registrationStep: number;

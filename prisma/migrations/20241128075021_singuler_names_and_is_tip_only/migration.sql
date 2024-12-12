@@ -2,7 +2,7 @@
 CREATE TYPE "TransactionStatus" AS ENUM ('INIT', 'PENDING', 'PAID', 'CANCELED');
 
 -- CreateTable
-CREATE TABLE "Restaurant" (
+CREATE TABLE "RestaurantSchema" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "image" TEXT NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE "Restaurant" (
 );
 
 -- CreateTable
-CREATE TABLE "Transaction" (
+CREATE TABLE "TransactionSchema" (
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -89,13 +89,13 @@ CREATE INDEX "TipTransaction_restaurantId_idx" ON "TipTransaction"("restaurantId
 CREATE INDEX "TipTransaction_waiterId_idx" ON "TipTransaction"("waiterId");
 
 -- AddForeignKey
-ALTER TABLE "Waiter" ADD CONSTRAINT "Waiter_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Waiter" ADD CONSTRAINT "Waiter_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "RestaurantSchema"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Admin" ADD CONSTRAINT "Admin_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Admin" ADD CONSTRAINT "Admin_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "RestaurantSchema"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TipTransaction" ADD CONSTRAINT "TipTransaction_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TipTransaction" ADD CONSTRAINT "TipTransaction_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "RestaurantSchema"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TipTransaction" ADD CONSTRAINT "TipTransaction_waiterId_fkey" FOREIGN KEY ("waiterId") REFERENCES "Waiter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

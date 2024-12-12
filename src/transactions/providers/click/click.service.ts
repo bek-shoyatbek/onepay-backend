@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ClickRequestDto } from './dto/click-request.dto';
 import { TransactionActions } from './constants/transaction-actions';
 import { ObjectId } from 'mongodb';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigService } from '@nestjs/config';
 import { log } from 'node:console';
@@ -98,7 +98,7 @@ export class ClickService {
     if (transaction && transaction.status == 'CANCELED') {
       return {
         error: ClickError.TransactionCanceled,
-        error_note: 'Transaction canceled',
+        error_note: 'TransactionSchema canceled',
       };
     }
 

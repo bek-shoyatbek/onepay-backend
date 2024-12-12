@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PaymeService } from './payme.service';
 import { PaymeController } from './payme.controller';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { PaymeBasicAuthGuard } from 'src/transactions/providers/payme/guards/payme.guard';
 import { ConfigModule } from '@nestjs/config';
 import { RkeeperModule } from 'src/terminals/rkeeper/rkeeper.module';

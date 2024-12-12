@@ -3,7 +3,7 @@ import { BotService } from './bot.service';
 import { BotController } from './bot.controller';
 import { GrammyCoreModule } from '@grammyjs/nestjs';
 import { MemorySessionStorage, session } from 'grammy';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [

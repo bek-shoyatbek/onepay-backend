@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
 import { PaymentProvider, Terminal } from 'src/shared/enums';
 import { CreateTransactionDto } from './dto';

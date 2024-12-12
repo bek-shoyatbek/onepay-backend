@@ -41,7 +41,7 @@ export const PaymeError = {
     message: {
       uz: 'Tranzaktsiya topilmadi',
       ru: 'Транзакция не найдена',
-      en: 'Transaction not found',
+      en: 'TransactionSchema not found',
     },
   },
   AlreadyDone: {

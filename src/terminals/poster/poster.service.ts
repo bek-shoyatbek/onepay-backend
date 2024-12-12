@@ -35,7 +35,7 @@ export class PosterService {
     const transaction = await this.getTransaction(closeTransactionDto);
 
     if (!transaction) {
-      throw new HttpException('Transaction not found', 404);
+      throw new HttpException('TransactionSchema not found', 404);
     }
 
     const payload = {

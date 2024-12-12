@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionMethods } from './constants/transaction-methods';
 import { CheckPerformTransactionDto } from './dto/check-perform-transaction.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { RequestBody } from './types/incoming-request-body';
 import { GetStatementDto } from './dto/get-statement.dto';
 import { CancelTransactionDto } from './dto/cancel-transaction.dto';
@@ -403,7 +403,7 @@ export class PaymeService {
           gte: new Date(getStatementDto.params.from),
           lte: new Date(getStatementDto.params.to),
         },
-        provider: 'payme', // ! Transaction only from Payme
+        provider: 'payme', // ! TransactionSchema only from Payme
       },
     });
 

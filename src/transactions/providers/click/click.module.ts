@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClickService } from './click.service';
 import { ClickController } from './click.controller';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigModule } from '@nestjs/config';
 

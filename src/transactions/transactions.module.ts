@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionsController } from './transactions.controller';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { RedirectingService } from 'src/utils/redirecting/redirecting.service';
 import { HashingService } from 'src/utils/hashing/hashing.service';
 import { ConfigModule } from '@nestjs/config';

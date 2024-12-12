@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UzumModule } from './transactions/providers/uzum/uzum.module';
@@ -18,6 +18,11 @@ import { APP_FILTER } from '@nestjs/core';
 import { PosterModule } from './terminals/poster/poster.module';
 import InternalServerErrorExceptionFilter from './shared/filters/internal-server-error.filter';
 import { TransactionsModule } from './transactions/transactions.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
+import { HttpLoggerMiddleware } from './shared/middlewares/http-logger.middleware';
+import { MulterModule } from '@nestjs/platform-express';
+import { AdminsModule } from './modules/admins/admins.module';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
 @Module({
@@ -36,6 +41,9 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
       rootPath: frontendAssetsDir,
     }),
     PosterModule,
+    PrismaModule,
+    RestaurantsModule,
+    AdminsModule
   ],
   controllers: [AppController],
   providers: [
@@ -47,4 +55,8 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}
