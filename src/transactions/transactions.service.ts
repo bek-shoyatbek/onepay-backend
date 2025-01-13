@@ -9,7 +9,7 @@ export class TransactionsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly redirectingService: RedirectingService,
-  ) {}
+  ) { }
 
   async createTransaction(createTransactionDto: CreateTransactionDto) {
     const isTipOnly = createTransactionDto.isTipOnly;

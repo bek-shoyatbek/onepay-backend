@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Restaurant {
-  id       String  @id @default(uuid())
+  id       String @id @default(uuid())
   title    String
   location String
   image    String
+  spotId   String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Relations (optional)
   waiters Waiter[]
   admins  Admin[]
   tips    TipTransaction[]
@@ -25,7 +25,7 @@ model Restaurant {
   @@map("restaurants")
 }
 
-model TransactionSchema {
+model Transaction {
   id        String            @id @default(uuid()) @map("transaction_id")
   orderId   String            @map("order_id")
   userId    String            @map("user_id")
@@ -53,8 +53,11 @@ model TransactionSchema {
 
 model Waiter {
   id           String  @id @default(uuid()) @map("waiter_id")
+  fullname     String
+  image        String?
   restaurantId String  @map("restaurant_id")
   phone        String?
+  userId       String?
   telegramId   String? @map("telegram_id")
 
   createdAt DateTime @default(now()) @map("created_at")

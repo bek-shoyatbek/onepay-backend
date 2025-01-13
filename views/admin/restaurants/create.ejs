@@ -1,72 +1,238 @@
-<%- include('../../partials/admin-header') %>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="container">
-  <h1>Create New Restaurant</h1>
-
-  <% if (locals.message) { %>
-  <div class="alert <%= success ? 'alert-success' : 'alert-danger' %>">
-    <%= message %>
-  </div>
-  <% } %>
-
-  <form id="createRestaurantForm" class="form">
-    <div class="form-group">
-      <label for="title" class="form-label">Restaurant Title</label>
-      <input type="text" id="title" name="title" required class="form-input" placeholder="Enter restaurant name">
-    </div>
-
-    <div class="form-group">
-      <label for="location" class="form-label">Location</label>
-      <input type="text" id="location" name="location" required class="form-input" placeholder="Enter restaurant location">
-    </div>
-
-    <div class="form-group">
-      <label for="image" class="form-label">Image URL (Optional)</label>
-      <input type="url" id="image" name="image" class="form-input" placeholder="Enter restaurant image URL">
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <button type="submit" class="btn btn-primary">
-        Create Restaurant
-      </button>
-      <a href="/api/v1/admins/restaurants" class="btn btn-secondary">
-        Cancel
-      </a>
-    </div>
-  </form>
-</div>
-
-<script>
-  document.getElementById('createRestaurantForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    // Create an object from form data instead of FormData
-    const restaurantData = {
-      title: document.getElementById('title').value,
-      location: document.getElementById('location').value,
-      image: document.getElementById('image').value || null // Use null if no image
-    };
-
-    try {
-      const response = await fetch('/api/v1/admins/restaurants', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json' // Correct content type for JSON
-        },
-        body: JSON.stringify(restaurantData) // Convert to JSON string
-      });
-
-      if (response.ok) {
-        window.location.href = '/api/v1/admins/restaurants';
-      } else {
-        const result = await response.json();
-        alert(result.message || 'Failed to create restaurant');
-      }
-    } catch (error) {
-      console.error('Create failed:', error);
-      alert('An error occurred');
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Restaurant</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2ecc71;
+      --background-color: #f4f6f7;
+      --text-color: #2c3e50;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-  });
-</script>
 
-<%- include('../../partials/admin-footer') %>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+
+    .alert {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: var(--border-radius);
+      text-align: center;
+    }
+
+    .alert-success {
+      background-color: #dff0d8;
+      color: #3c763d;
+      border: 1px solid #d6e9c6;
+    }
+
+    .alert-danger {
+      background-color: #f2dede;
+      color: #a94442;
+      border: 1px solid #ebccd1;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      flex-grow: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #27ae60;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+
+      .btn-container {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../../partials/admin-header') %>
+
+  <div class="container">
+    <h1>Create New Restaurant</h1>
+
+    <% if (locals.message) { %>
+    <div class="alert <%= success ? 'alert-success' : 'alert-danger' %>">
+      <%= message %>
+    </div>
+    <% } %>
+
+    <form id="createRestaurantForm" class="form">
+      <div class="form-group">
+        <label for="title" class="form-label">Restaurant Title</label>
+        <input type="text" id="title" name="title" required class="form-input" placeholder="Enter restaurant name">
+      </div>
+
+      <div class="form-group">
+        <label for="location" class="form-label">Location</label>
+        <input type="text" id="location" name="location" required class="form-input" placeholder="Enter restaurant location">
+      </div>
+
+      <div class="form-group">
+        <label for="spotId" class="form-label">Spot ID</label>
+        <input type="text" id="spotId" name="spotId" required class="form-input" placeholder="Enter restaurant spot ID">
+      </div>
+
+      <div class="form-group">
+        <label for="image" class="form-label">Image URL (Optional)</label>
+        <input type="url" id="image" name="image" class="form-input" placeholder="Enter restaurant image URL">
+      </div>
+
+      <div class="btn-container">
+        <button type="submit" class="btn btn-primary">
+          Create Restaurant
+        </button>
+        <button type="button" id="cancelButton" class="btn btn-secondary">
+          <a href="/api/v1/admins/restaurants" class="btn btn-secondary">
+            Cancel
+          </a>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    let accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+      window.location.href = '/api/v1/admins/login';
+    }
+
+    const cancelButton = document.getElementById('cancelButton');
+    cancelButton.addEventListener('click', () => {
+      window.location.href = '/api/v1/admins/restaurants?token=' + accessToken;
+    });
+
+    document.getElementById('createRestaurantForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const restaurantData = {
+        title: document.getElementById('title').value,
+        location: document.getElementById('location').value,
+        spotId: document.getElementById('spotId').value,
+        image: document.getElementById('image').value || null
+      };
+
+      try {
+        const response = await fetch('/api/v1/restaurants?token=' + accessToken, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(restaurantData)
+        });
+
+        if (response.ok) {
+          window.location.href = '/api/v1/admins/restaurants?token=' + accessToken;
+        } else {
+          const result = await response.json();
+          alert(result.message || 'Failed to create restaurant');
+        }
+      } catch (error) {
+        console.error('Create failed:', error);
+        alert('An error occurred');
+      }
+    });
+  </script>
+
+  <%- include('../../partials/admin-footer') %>
+</body>
+
+</html>

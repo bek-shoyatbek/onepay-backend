@@ -2,26 +2,28 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   Post,
   Put,
   Query,
-  UploadedFile,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { RestaurantsService } from './restaurants.service';
-import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
+import { CreateRestaurantDto } from './dto/create-restaurant.dto';
+import { AuthGuard } from 'src/shared/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('restaurants')
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) { }
+
+  @Post('')
+  async createRestaurant(@Body() body: CreateRestaurantDto) {
+    return await this.restaurantsService.createRestaurant(body)
+  }
 
   @Get('')
   async getRestaurants(
@@ -41,6 +43,7 @@ export class RestaurantsController {
         ]
       } : undefined,
       orderBy: { createdAt: 'desc' }
+
     });
 
   }
@@ -52,31 +55,17 @@ export class RestaurantsController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image'))
   async updateRestaurant(
     @Param('id') id: string,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 24 * 10_000 }),
-          new FileTypeValidator({ fileType: 'image/*' })
-        ],
-        fileIsRequired: false,
-      }),
-    )
-    image: Express.Multer.File | null,
-    @Body() updateRestaurantDto: UpdateRestaurantDto,
+    @Body() updateRestaurantDto: Partial<CreateRestaurantDto>,
   ) {
-    return this.restaurantsService.updateRestaurant(id, {
-      ...updateRestaurantDto,
-      image: image ? image.filename : undefined
-    });
+    return await this.restaurantsService.updateRestaurant(id, updateRestaurantDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteRestaurant(@Param('id') id: string) {
-    await this.restaurantsService.deleteRestaurant(id);
-    return null;
+    return await this.restaurantsService.deleteRestaurant(id);
+
   }
 }

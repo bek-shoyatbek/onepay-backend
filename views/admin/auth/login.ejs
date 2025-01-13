@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  <style>
+    :root {
+      --primary-color: #6a11cb;
+      --secondary-color: #2575fc;
+      --background-color: #f4f4f4;
+      --text-color: #333;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      padding: 40px;
+      animation: slide-up 0.7s ease-in-out;
+      gap: 40px;
+    }
+
+    .lottie-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 350px;
+    }
+
+    .login-container {
+      flex: 1;
+      max-width: 350px;
+    }
+
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary-color);
+      animation: fade-in 0.5s ease-in;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px 12px 40px;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .input-group .icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 10px rgba(106, 17, 203, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .forgot-link,
+    .signup-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-link:hover,
+    .signup-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+      .login-wrapper {
+        flex-direction: column;
+        max-width: 400px;
+      }
+
+      .lottie-container {
+        max-width: 250px;
+        margin-bottom: 20px;
+      }
+    }
+
+    /* Animations */
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .input-group input:focus+.icon {
+      animation: icon-pulse 0.5s infinite alternate;
+    }
+
+    @keyframes icon-pulse {
+      from {
+        transform: translateY(-50%) scale(1);
+      }
+
+      to {
+        transform: translateY(-50%) scale(1.2);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-wrapper">
+    <div class="lottie-container">
+      <dotlottie-player src="https://lottie.host/31430427-1fea-4cd5-823c-74d5fd200db3/r4TZl6soeS.lottie" background="transparent" speed="1" style="width: 100%; height: 350px" loop autoplay>
+      </dotlottie-player>
+    </div>
+    <div class="login-container">
+      <form id="login-form" class="login-form">
+        <h2>Welcome Back</h2>
+        <div class="input-group">
+          <input type="email" id="user-email" name="email" placeholder="Email" required>
+          <span class="icon">✉️</span>
+        </div>
+        <div class="input-group">
+          <input type="password" id="user-password" name="password" placeholder="Password" required>
+          <span class="icon">🔒</span>
+        </div>
+        <button type="button" id="login-btn" class="login-btn">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById("login-btn");
+
+    loginBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("user-email").value;
+      const password = document.getElementById("user-password").value;
+
+      const resp = await fetch(`/api/v1/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        alert(data?.message);
+        return;
+      }
+      let accessToken = data?.accessToken;
+      localStorage.setItem("accessToken", accessToken);
+      window.location.href = "/api/v1/admins/restaurants?token=" + accessToken;
+    })
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const animationContainer = document.getElementById('lottie-animation');
+
+      const animationUrl = 'https://lottie.host/31430427-1fea-4cd5-823c-74d5fd200db3/r4TZl6soeS.lottie';
+
+
+      const animation = lottie.loadAnimation({
+        container: animationContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: animationUrl
+      });
+    });
+  </script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@0.2.0/dist/lottie-player.js"></script>
+</body>
+
+</html>

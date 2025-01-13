@@ -1,0 +1,350 @@
+<%- include('../../partials/admin-header') %>
+<link rel="stylesheet" href="./styles/index.css">
+
+<div class="container">
+  <div class="page-header">
+    <h1>Waiters Management</h1>
+    <div class="header-actions">
+      <span class="total-waiters">Total Waiters: <%= pagination.totalWaiters %></span>
+      <a href="/api/v1/admins/waiters/create" class="btn btn-primary" onclick="handleLinkClick(event)">
+        Add New Waiter
+      </a>
+    </div>
+  </div>
+
+  <div class="waiters-list">
+    <% waiters.forEach(waiter => { %>
+    <div class="waiter-row">
+      <div class="waiter-avatar">
+        <% if (waiter.image) { %>
+        <img src="<%= waiter.image %>" alt="<%= waiter.fullname %>'s profile" onerror="this.onerror=null; this.src='/path/to/default-avatar.png'">
+        <% } else { %>
+        <div class="no-image-placeholder">
+          <span>No Image</span>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="waiter-info">
+        <div class="waiter-header">
+          <h3 class="waiter-name"><%= waiter.fullname %></h3>
+          <span class="spot-id">Spot ID: <%= waiter.restaurant.spotId %></span>
+        </div>
+        <div class="waiter-actions">
+          <a href="/api/v1/admins/waiters/<%= waiter.id %>/edit" class="btn btn-warning" onclick="handleLinkClick(event)">
+            Edit
+          </a>
+          <button class="btn btn-danger delete-waiter" data-id="<%= waiter.id %>">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <% if (pagination.totalPages > 1) { %>
+  <div class="pagination">
+    <% if (pagination.currentPage > 1) { %>
+    <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-secondary">
+      Previous
+    </a>
+    <% } %>
+
+    <span class="page-info">
+      Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
+    </span>
+
+    <% if (pagination.currentPage < pagination.totalPages) { %>
+    <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-secondary">
+      Next
+    </a>
+    <% } %>
+  </div>
+  <% } %>
+</div>
+
+<script>
+  let accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    window.location.href = '/api/v1/admins/login';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.delete-waiter').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const waiterId = e.currentTarget.dataset.id;
+        const waiterRow = e.currentTarget.closest('.waiter-row');
+        const waiterName = waiterRow.querySelector('.waiter-name').textContent;
+
+        if (confirm(`Are you sure you want to delete waiter ${waiterName}?`)) {
+          try {
+            const response = await fetch(`/api/v1/waiters/${waiterId}?token=${accessToken}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+
+            if (response.ok) {
+              Toastify({
+                text: 'Waiter has been deleted.',
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                backgroundColor: 'green'
+              }).showToast();
+              waiterRow.remove();
+            } else {
+              Toastify({
+                text: 'Failed to delete the waiter.',
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                backgroundColor: 'red'
+              }).showToast();
+            }
+          } catch (error) {
+            console.error('Delete failed:', error);
+            Toastify({
+              text: 'An error occurred while deleting the waiter.',
+              duration: 3000,
+              gravity: 'top',
+              position: 'right',
+              backgroundColor: 'red'
+            }).showToast();
+          }
+        }
+      });
+    });
+  });
+</script>
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+  }
+
+  .page-header h1 {
+    font-size: 2.5rem;
+    color: var(--text-color);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .total-waiters {
+    font-weight: 600;
+    color: var(--secondary-color);
+  }
+
+  .btn {
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: inline-block;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #2a72b8;
+  }
+
+  .waiters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .waiter-row {
+    display: flex;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .waiter-row:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .waiter-avatar {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+  }
+
+  .waiter-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--secondary-color);
+    font-style: italic;
+  }
+
+  .waiter-info {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .waiter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .waiter-name {
+    font-size: 1.5rem;
+    color: var(--text-color);
+  }
+
+  .spot-id {
+    background-color: var(--background-color);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+  }
+
+  .waiter-actions {
+    display: flex;
+    gap: 15px;
+  }
+
+  .btn-warning {
+    background-color: var(--warning-color);
+    color: white;
+  }
+
+  .btn-warning:hover {
+    background-color: #e0a800;
+  }
+
+  .btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #bd2130;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #545b62;
+  }
+
+  .page-info {
+    font-weight: 600;
+    color: var(--secondary-color);
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .waiter-row {
+      flex-direction: column;
+    }
+
+    .waiter-avatar {
+      width: 100%;
+      height: 250px;
+    }
+
+    .waiter-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+
+  .select-wrapper {
+    position: relative;
+    display: inline-block;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  .select-wrapper select {
+    width: 100%;
+    padding: 5px 35px 5px 5px;
+    border: none;
+    background-color: transparent;
+    appearance: none;
+  }
+
+  .select-wrapper::after {
+    content: '\25BE';
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px 10px;
+    background-color: var(--secondary-color);
+    background-color: #333;
+    color: white;
+    pointer-events: none;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<%- include('../../partials/admin-footer') %>

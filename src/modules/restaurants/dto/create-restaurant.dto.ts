@@ -14,6 +14,10 @@ export class CreateRestaurantDto {
   location: string;
 
   @IsString()
+  @IsNotEmpty()
+  spotId: string;
+
+  @IsString()
   @IsOptional()
   image?: string;
 }

@@ -23,6 +23,11 @@
     </div>
 
     <div class="form-group">
+      <label for="spotId" class="form-label">Spot ID</label>
+      <input type="text" id="spotId" name="spotId" required class="form-input" value="<%= restaurant.spotId %>">
+    </div>
+
+    <div class="form-group">
       <label for="image" class="form-label">Image URL (Optional)</label>
       <input type="url" id="image" name="image" class="form-input" value="<%= restaurant.image %>">
     </div>
@@ -31,14 +36,27 @@
       <button type="button" id="updateButton" class="btn btn-primary">
         Update Restaurant
       </button>
-      <a href="/api/v1/admins/restaurants" class="btn btn-secondary">
-        Cancel
-      </a>
+      <button type="button" id="cancelButton" class="btn btn-secondary">
+        <a href="/api/v1/admins/restaurants" class="btn btn-secondary" onclick="handleLinkClick(event)">
+          Cancel
+        </a>
+      </button>
     </div>
   </form>
 </div>
 
 <script>
+  let accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    window.location.href = '/api/v1/admins/login';
+  }
+
+  const cancelButton = document.getElementById('cancelButton');
+  cancelButton.addEventListener('click', () => {
+    window.location.href = '/api/v1/admins/restaurants?token=' + accessToken;
+  });
+
   document.getElementById('updateButton').addEventListener('click', async () => {
     const form = document.getElementById('editRestaurantForm');
     const alertDiv = document.getElementById('alert');
@@ -46,11 +64,13 @@
     const formData = {
       title: document.getElementById('title').value,
       location: document.getElementById('location').value,
+      spotId: document.getElementById('spotId').value,
       image: document.getElementById('image').value
     };
+    console.log('formData: ', formData);
 
     try {
-      const response = await fetch(`/api/v1/admins/restaurants/<%= restaurant.id %>`, {
+      const response = await fetch(`/api/v1/restaurants/<%= restaurant.id %>?token=${accessToken}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

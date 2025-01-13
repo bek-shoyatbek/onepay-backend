@@ -1,0 +1,99 @@
+<%- include('../../partials/admin-header') %>
+
+<div class="container">
+  <h1>Edit Waiter</h1>
+
+  <% if (locals.message) { %>
+  <div class="alert <%= success ? 'alert-success' : 'alert-danger' %>">
+    <%= message %>
+  </div>
+  <% } %>
+
+  <form id="editWaiterForm" class="form">
+    <div class="form-group">
+      <label for="fullname" class="form-label">Waiter Full Name</label>
+      <input type="text" id="fullname" name="fullname" required class="form-input" value="<%= waiter.fullname %>">
+    </div>
+
+    <div class="form-group">
+      <label for="image" class="form-label">Image URL</label>
+      <input type="text" id="image" name="image" required class="form-input" value="<%= waiter.image %>">
+    </div>
+
+    <div class="form-group">
+      <label for="spotId" class="form-label">Spot ID</label>
+      <div class="select-wrapper">
+        <select id="spotId" name="spotId" required>
+          <% if (restaurants?.filter(restaurant => restaurant.id === waiter.spotId) > 0 ) { %>
+          <option value="<% restaurant.id %>" selected><%= restaurant.title %></option>
+          <% } else { %>
+          <option value="">Select restaurant</option>
+          <% } %>
+          <% restaurants.forEach(restaurant => { %>
+          <option value="<%= restaurant.id %>"><%= restaurant.title %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="userId" class="form-label">User ID</label>
+      <input type="text" id="userId" name="userId" required class="form-input" value="<%= waiter.userId %>">
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="updateButton" class="btn btn-primary">
+        Update Waiter
+      </button>
+      <button type="button" id="cancelButton" class="btn btn-secondary">
+        <a href="/api/v1/admins/waiters" class="btn btn-secondary" onclick="handleLinkClick(event)">
+          Cancel
+        </a>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  let accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    window.location.href = '/api/v1/admins/login';
+  }
+
+  const cancelButton = document.getElementById('cancelButton');
+  cancelButton.addEventListener('click', () => {
+    window.location.href = '/api/v1/admins/waiters?token=' + accessToken;
+  })
+  document.getElementById('updateButton').addEventListener('click', async () => {
+    const formData = {
+      fullname: document.getElementById('fullname').value,
+      image: document.getElementById('image').value,
+      spotId: document.getElementById('spotId').value,
+      userId: document.getElementById('userId').value
+    };
+
+    try {
+      const response = await fetch(`/api/v1/waiters/<%= waiter.id %>?token=${accessToken}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Waiter updated successfully!');
+        window.location.href = '/api/v1/admins/waiters';
+      } else {
+        alert(result.message || 'Failed to update waiter.');
+      }
+    } catch (error) {
+      alert('An error occurred while updating the waiter.');
+    }
+  });
+</script>
+
+<%- include('../../partials/admin-footer') %>

@@ -1,37 +1,37 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Render, Res, ValidationPipe } from "@nestjs/common";
+import { Controller, Get, Param, Render, UseGuards } from "@nestjs/common";
 import { RestaurantsService } from "../restaurants/restaurants.service";
-import { CreateRestaurantDto } from "../restaurants/dto/create-restaurant.dto";
-import { ConfigService } from "@nestjs/config";
-import { Response } from "express";
+import { WaitersService } from "../waiters/waiters.service";
+import { AuthGuard } from "src/shared/auth/auth.guard";
 
 @Controller('admins')
 export class AdminsController {
-    private readonly username: string;
-    private readonly password: string;
-    constructor(private readonly restaurantService: RestaurantsService, private readonly configService: ConfigService) {
-        this.username = this.configService.get<string>('ADMIN_USERNAME');
-        this.password = this.configService.get<string>('ADMIN_PASSWORD');
+    constructor(private readonly restaurantService: RestaurantsService, private readonly waitersService: WaitersService) { }
+
+
+    @Get('login')
+    @Render('admin/auth/login')
+    getLogin() {
+        return {}
     }
 
+    @UseGuards(AuthGuard)
     @Get('restaurants')
     @Render('admin/restaurants/index')
     async getRestaurants() {
-        return await this.restaurantService.getRestaurants();
+        const result = await this.restaurantService.getRestaurants();
+        return result;
     }
 
+
+    @UseGuards(AuthGuard)
     @Get('restaurants/create')
     @Render('admin/restaurants/create')
     getCreateRestaurants() {
         return {}
     }
 
-    @Post('restaurants')
-    async createRestaurant(@Body() body: CreateRestaurantDto) {
-        console.log(body);
 
-        return await this.restaurantService.createRestaurant(body)
-    }
-
+    @UseGuards(AuthGuard)
     @Get('restaurants/:id/edit')
     @Render('admin/restaurants/edit')
     async getEditRestaurants(@Param('id') id: string) {
@@ -41,15 +41,31 @@ export class AdminsController {
         }
     }
 
-
-    @Delete('restaurants/:id')
-    async deleteRestaurant(@Param('id') id: string) {
-        return await this.restaurantService.deleteRestaurant(id)
+    @UseGuards(AuthGuard)
+    @Get('waiters')
+    @Render('admin/waiters/index')
+    async getWaiters() {
+        return await this.waitersService.getWaiters();
     }
 
-    @Put('restaurants/:id')
-    async updateRestaurant(@Param('id') id: string, @Body() body: Partial<CreateRestaurantDto>) {
-        return await this.restaurantService.updateRestaurant(id, body)
+    @UseGuards(AuthGuard)
+    @Get('waiters/create')
+    @Render('admin/waiters/create')
+    async getCreateWaiters() {
+        return await this.restaurantService.getRestaurants();
     }
+
+    @UseGuards(AuthGuard)
+    @Get('waiters/:id/edit')
+    @Render('admin/waiters/edit')
+    async getEditWaiters(@Param('id') id: string) {
+        const waiter = await this.waitersService.getWaiterById(id);
+        const result = await this.restaurantService.getRestaurants();
+        return {
+            waiter,
+            restaurants: result.restaurants
+        }
+    }
+
 
 }

@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UzumModule } from './transactions/providers/uzum/uzum.module';
 import { AuthModule } from './shared/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClickModule } from './transactions/providers/click/click.module';
 import { PaymeModule } from './transactions/providers/payme/payme.module';
 import { WinstonModule } from 'nest-winston';
@@ -21,8 +21,9 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 import { HttpLoggerMiddleware } from './shared/middlewares/http-logger.middleware';
-import { MulterModule } from '@nestjs/platform-express';
 import { AdminsModule } from './modules/admins/admins.module';
+import { WaitersModule } from './modules/waiters/waiters.module';
+import { JwtModule } from '@nestjs/jwt';
 
 const frontendAssetsDir = join(process.cwd(), 'frontend');
 @Module({
@@ -43,7 +44,9 @@ const frontendAssetsDir = join(process.cwd(), 'frontend');
     PosterModule,
     PrismaModule,
     RestaurantsModule,
-    AdminsModule
+    AdminsModule,
+    WaitersModule,
+  
   ],
   controllers: [AppController],
   providers: [

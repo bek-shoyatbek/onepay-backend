@@ -5,20 +5,20 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
-import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RestaurantsService {
   constructor(private readonly prismaService: PrismaService) { }
 
-  async createRestaurant(restaurant: CreateRestaurantDto & { image?: string }) {
+  async createRestaurant(restaurant: CreateRestaurantDto) {
     try {
       return await this.prismaService.restaurant.create({
         data: {
           title: restaurant.title,
           location: restaurant.location,
-          image: restaurant.image || ''
+          image: restaurant.image || '',
+          spotId: restaurant.spotId
         }
       });
     } catch (error) {
@@ -97,14 +97,15 @@ export class RestaurantsService {
     return restaurant;
   }
 
-  async updateRestaurant(id: string, data: UpdateRestaurantDto) {
+  async updateRestaurant(id: string, data: Partial<CreateRestaurantDto>) {
     try {
       return await this.prismaService.restaurant.update({
         where: { id },
         data: {
           ...(data.title && { title: data.title }),
           ...(data.location && { location: data.location }),
-          ...(data.image && { image: data.image })
+          ...(data.image && { image: data.image }),
+          ...(data.spotId && { spotId: data.spotId }),
         }
       });
     } catch (error) {
@@ -135,7 +136,6 @@ export class RestaurantsService {
     }
   }
 
-  // Additional utility methods
   async restaurantExists(id: string): Promise<boolean> {
     const restaurant = await this.prismaService.restaurant.findUnique({
       where: { id }

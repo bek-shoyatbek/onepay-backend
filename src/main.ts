@@ -23,6 +23,7 @@ async function bootstrap() {
 
   app.use(morgan('dev'));
 
+
   app.enableCors();
 
   app.useStaticAssets(frontendAssetsDir);

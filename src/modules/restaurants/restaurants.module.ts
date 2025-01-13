@@ -1,11 +1,14 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { RestaurantsController } from './restaurants.controller';
 import { RestaurantsService } from './restaurants.service';
 import { MulterModule } from '@nestjs/platform-express';
+import { AuthModule } from 'src/shared/auth/auth.module';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [PrismaModule, MulterModule.register({
+  imports: [forwardRef(() => AuthModule), PrismaModule, MulterModule.register({
     dest: './uploads',
     fileFilter: (req, file, cb) => {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -13,7 +16,7 @@ import { MulterModule } from '@nestjs/platform-express';
     }
   })],
   controllers: [RestaurantsController],
-  providers: [RestaurantsService],
+  providers: [RestaurantsService, JwtService, ConfigService],
   exports: [RestaurantsService]
 })
 export class RestaurantsModule { }
