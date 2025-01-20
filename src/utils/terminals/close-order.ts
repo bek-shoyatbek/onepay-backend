@@ -13,19 +13,23 @@ export const closeOrder = async (
 ) => {
   switch (terminal) {
     case 'poster': {
-      const posterService = new PosterService(new ConfigService());
-      const payload: CloseTransactionDto = {
-        spotId: transaction.spotId,
-        tableId: transaction.tableId,
-        total: transaction.amount + '',
-        userId: transaction.userId,
-      };
+      try {
+        const posterService = new PosterService(new ConfigService());
+        const payload: CloseTransactionDto = {
+          spotId: transaction.spotId,
+          tableId: transaction.tableId,
+          total: transaction.amount + '',
+          userId: transaction.userId,
+        };
 
-      const response = await posterService.closeTransaction(payload);
-      if (response?.err_code !== 0) {
-        throw new InternalServerErrorException("Couldn't close order");
+        const response = await posterService.closeTransaction(payload);
+        if (response?.err_code !== 0) {
+          throw new InternalServerErrorException("Couldn't close order");
+        }
+        return true;
+      } catch (err) {
+        console.error(err);
       }
-      return true;
     }
     case 'rkeeper': {
       const rkeeperService = new RkeeperService(

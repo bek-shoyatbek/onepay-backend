@@ -16,7 +16,7 @@ import { closeOrder } from '../../../utils/terminals';
 
 @Injectable()
 export class PaymeService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async handleTransactionMethods(reqBody: RequestBody) {
     const method = reqBody.method;

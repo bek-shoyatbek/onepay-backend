@@ -29,6 +29,25 @@ export class PosterService {
     });
   }
 
+  async getCashRegisters() {
+    try {
+      const response = await this.api({
+        method: 'get',
+        url: '/api/access.getTablets?token=' + this.token,
+      });
+
+      return response.data.response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new HttpException(
+          `Failed to get cash registers: ${error.message}`,
+          error.response?.status || 500,
+        );
+      }
+      throw error;
+    }
+  }
+
   async closeTransaction(
     closeTransactionDto: CloseTransactionDto,
   ): Promise<{ err_code: number }> {
