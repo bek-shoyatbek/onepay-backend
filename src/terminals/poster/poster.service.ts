@@ -38,7 +38,7 @@ export class PosterService {
   async closeTransaction(
     closeTransactionDto: CloseTransactionDto,
   ): Promise<{ err_code: number }> {
-    const restaurant = await this.prismaService.restaurant.findFirstOrThrow({
+    const restaurant = await this.prismaService.restaurant.findFirst({
       where: {
         title: closeTransactionDto.accountUrl,
       }
