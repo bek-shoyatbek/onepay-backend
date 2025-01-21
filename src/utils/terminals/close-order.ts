@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { PosterService } from '../../terminals/poster/poster.service';
 import { CloseTransactionDto } from '../../terminals/poster/dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 export const closeOrder = async (
   terminal: string,
@@ -14,12 +15,16 @@ export const closeOrder = async (
   switch (terminal) {
     case 'poster': {
       try {
-        const posterService = new PosterService(new ConfigService());
+
+        const posterService = new PosterService(new ConfigService(), new PrismaService());
+
         const payload: CloseTransactionDto = {
           spotId: transaction.spotId,
           tableId: transaction.tableId,
           total: transaction.amount + '',
           userId: transaction.userId,
+          spotTabletId: transaction.spotTabletId,
+          accountUrl: transaction.accountUrl,
         };
 
         const response = await posterService.closeTransaction(payload);

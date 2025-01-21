@@ -11,7 +11,15 @@ export class CloseTransactionDto {
 
   @IsString()
   @IsNotEmpty()
+  spotTabletId: string;
+
+  @IsString()
+  @IsNotEmpty()
   userId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  accountUrl: string;
 
   @IsString()
   @IsNotEmpty()

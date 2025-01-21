@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Restaurant {
-  id            String @id @default(uuid())
+  id            String  @id @default(uuid())
   title         String
   location      String
   image         String
   spotId        String
   personalToken String
+  accountUrl    String?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -27,16 +28,18 @@ model Restaurant {
 }
 
 model Transaction {
-  id        String            @id @default(uuid()) @map("transaction_id")
-  orderId   String            @map("order_id")
-  userId    String            @map("user_id")
-  spotId    String?           @map("spot_id")
-  status    TransactionStatus @default(INIT)
-  provider  String
-  terminal  String
-  amount    Float
-  tip       Float
-  isTipOnly Boolean           @map("is_tip_only")
+  id           String            @id @default(uuid()) @map("transaction_id")
+  orderId      String            @map("order_id")
+  userId       String            @map("user_id")
+  spotId       String?           @map("spot_id")
+  spotTabletId String?           @map("spot_tablet_id")
+  accountUrl   String?           @map("account_url")
+  status       TransactionStatus @default(INIT)
+  provider     String
+  terminal     String
+  amount       Float
+  tip          Float
+  isTipOnly    Boolean           @map("is_tip_only")
 
   tableId     String?   @map("table_id")
   transId     String?   @map("payme_trans_id")

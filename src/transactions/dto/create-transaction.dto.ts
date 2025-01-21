@@ -21,6 +21,12 @@ export class CreateTransactionDto {
   @IsString()
   spotId: string;
 
+  @IsString()
+  spotTabletId: string;
+
+  @IsString()
+  accountUrl: string;
+
   @IsNotEmpty()
   @IsString()
   provider: string;

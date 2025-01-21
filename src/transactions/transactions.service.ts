@@ -26,10 +26,10 @@ export class TransactionsService {
         tableId: createTransactionDto.tableId,
         terminal: createTransactionDto.terminal as Terminal,
         spotId: createTransactionDto.spotId,
+        spotTabletId: createTransactionDto.spotTabletId,
         status: 'INIT',
       },
     });
-    console.log('newTransaction: ', newTransaction);
     const redirectUrl = this.redirectingService.generateRedirectUrl(
       createTransactionDto.provider as PaymentProvider,
       {

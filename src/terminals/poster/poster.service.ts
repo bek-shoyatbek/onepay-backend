@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { CloseTransactionDto } from './dto';
 import { Transaction } from './interfaces';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PosterService {
@@ -14,7 +15,10 @@ export class PosterService {
   private readonly posterBaseUrl = 'https://joinposter.com/api';
   private readonly token: string;
 
-  constructor(private readonly configService: ConfigService) {
+
+  constructor(private readonly configService: ConfigService,
+    private readonly prismaService: PrismaService
+  ) {
     this.token = this.configService.get<string>('POSTER_API_TOKEN');
 
     if (!this.token) {
@@ -29,11 +33,11 @@ export class PosterService {
     });
   }
 
-  async getCashRegisters() {
+  private async getCashRegisters(resToken: string) {
     try {
       const response = await this.api({
         method: 'get',
-        url: '/api/access.getTablets?token=' + this.token,
+        url: '/access.getTablets?token=' + resToken,
       });
 
       return response.data.response;
@@ -51,7 +55,21 @@ export class PosterService {
   async closeTransaction(
     closeTransactionDto: CloseTransactionDto,
   ): Promise<{ err_code: number }> {
-    const transaction = await this.getTransaction(closeTransactionDto);
+    const restaurant = await this.prismaService.restaurant.findFirst({
+      where: {
+        accountUrl: closeTransactionDto.accountUrl,
+      }
+    });
+
+    if (!restaurant) {
+      throw new HttpException('Restaurant not found', 404);
+    }
+
+    if (!restaurant.personalToken) {
+      throw new InternalServerErrorException('Personal token not found');
+    }
+
+    const transaction = await this.getTransaction(restaurant.personalToken, closeTransactionDto);
 
     if (!transaction) {
       throw new HttpException('TransactionSchema not found', 404);
@@ -59,14 +77,14 @@ export class PosterService {
 
     const payload = {
       spot_id: +transaction.spot_id,
-      spot_tablet_id: '1', // TODO: add tablet id
+      spot_tablet_id: +closeTransactionDto.spotTabletId,
       transaction_id: +transaction.transaction_id,
       payed_cash: +transaction.sum / 100,
     };
 
     try {
       const response = await this.api.post(
-        `/transactions.closeTransaction?token=${this.token}`,
+        `/transactions.closeTransaction?token=${restaurant.personalToken}`,
         payload,
         {
           headers: {
@@ -88,13 +106,14 @@ export class PosterService {
   }
 
   async getTransactions(
+    resToken: string,
     dateFrom?: string,
     dateTo?: string,
   ): Promise<Transaction[]> {
     try {
       const response = await this.api({
         method: 'get',
-        url: `/dash.getTransactions?token=${this.token}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+        url: `/dash.getTransactions?token=${resToken}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -111,13 +130,13 @@ export class PosterService {
     }
   }
 
-  private async getTodayTransactions() {
+  private async getTodayTransactions(resToken: string) {
     const todayYYYYMMDD = new Date().toISOString().split('T')[0];
-    return await this.getTransactions(todayYYYYMMDD, todayYYYYMMDD);
+    return await this.getTransactions(resToken, todayYYYYMMDD, todayYYYYMMDD);
   }
 
-  private async getTransaction(details: CloseTransactionDto) {
-    const todayTransactions = await this.getTodayTransactions();
+  private async getTransaction(resToken: string, details: CloseTransactionDto) {
+    const todayTransactions = await this.getTodayTransactions(resToken);
 
     return todayTransactions.find((transaction) => {
       return (

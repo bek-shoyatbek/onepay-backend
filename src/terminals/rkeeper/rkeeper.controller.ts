@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { RkeeperService } from './rkeeper.service';
-import { CompleteOrderParams } from './types/complete-order.params';
 import { RKeeperParams } from 'src/types/rkeeper-params';
 
 @Controller('rkeeper')
 export class RkeeperController {
-  constructor(private readonly rkeeperService: RkeeperService) {}
+  constructor(private readonly rkeeperService: RkeeperService) { }
 
   @Get('/orders/:orderId')
   async getOrderWaiterIdAndStationId(@Param('orderId') orderId: string) {
