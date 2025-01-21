@@ -34,6 +34,7 @@ export const closeOrder = async (
         return true;
       } catch (err) {
         console.error(err);
+        throw new InternalServerErrorException("Couldn't close order");
       }
       break;
     }
