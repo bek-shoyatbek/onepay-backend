@@ -52,6 +52,8 @@ export class PosterService {
       throw new InternalServerErrorException('Personal token not found');
     }
 
+    this.logger.log(`Personal token: ${restaurant.personalToken}`);
+    this.logger.log(`closeTransaction: ${closeTransactionDto}`);
     const transaction = await this.getTransactionByOrderId(
       restaurant.personalToken,
       closeTransactionDto.orderId)
@@ -99,6 +101,7 @@ export class PosterService {
           'Content-Type': 'application/json',
         },
       });
+      this.logger.log(`getTransactionByOrderId response: ${response.data}`);
       const transactions = response.data.response;
       return transactions?.length > 0 ? transactions[0] : null;
     } catch (error) {
