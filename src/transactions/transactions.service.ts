@@ -23,6 +23,7 @@ export class TransactionsService {
           'poster_' + Math.floor(Math.random() * 1000000),
         tip: createTransactionDto.tip,
         isTipOnly,
+        accountUrl: createTransactionDto.accountUrl,
         tableId: createTransactionDto.tableId,
         terminal: createTransactionDto.terminal as Terminal,
         spotId: createTransactionDto.spotId,
