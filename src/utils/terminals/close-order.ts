@@ -35,6 +35,7 @@ export const closeOrder = async (
       } catch (err) {
         console.error(err);
       }
+      break;
     }
     case 'rkeeper': {
       const rkeeperService = new RkeeperService(

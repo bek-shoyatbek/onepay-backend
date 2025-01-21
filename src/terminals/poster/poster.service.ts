@@ -110,6 +110,8 @@ export class PosterService {
     dateFrom?: string,
     dateTo?: string,
   ): Promise<Transaction[]> {
+    console.log("dateFrom: " + dateFrom);
+    console.log("dateTo: " + dateTo);
     try {
       const response = await this.api({
         method: 'get',
@@ -136,9 +138,12 @@ export class PosterService {
   }
 
   private async getTransaction(resToken: string, details: CloseTransactionDto) {
+    console.log("resToken: " + resToken);
+    console.table(details);
     const todayTransactions = await this.getTodayTransactions(resToken);
 
-    return todayTransactions.find((transaction) => {
+    console.log('todayTransactions: ', todayTransactions);
+    return todayTransactions?.find((transaction) => {
       return (
         transaction.spot_id === details.spotId &&
         transaction.table_id === details.tableId &&
