@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Restaurant {
-  id       String @id @default(uuid())
-  title    String
-  location String
-  image    String
-  spotId   String
+  id            String @id @default(uuid())
+  title         String
+  location      String
+  image         String
+  spotId        String
+  personalToken String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

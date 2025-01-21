@@ -18,6 +18,10 @@ export class CreateRestaurantDto {
   spotId: string;
 
   @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @IsString()
   @IsOptional()
   image?: string;
 }

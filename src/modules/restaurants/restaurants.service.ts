@@ -18,7 +18,8 @@ export class RestaurantsService {
           title: restaurant.title,
           location: restaurant.location,
           image: restaurant.image || '',
-          spotId: restaurant.spotId
+          spotId: restaurant.spotId,
+          personalToken: restaurant.token
         }
       });
     } catch (error) {

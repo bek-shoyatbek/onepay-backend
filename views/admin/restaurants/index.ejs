@@ -18,6 +18,7 @@
           <th>Restaurant Name</th>
           <th>Location</th>
           <th>Spot ID</th>
+          <th>Token</th>
           <th>Waiters</th>
           <th>Admins</th>
           <th>Tips</th>
@@ -39,6 +40,9 @@
           </td>
           <td class="spot-id">
             <span class="badge"><%= restaurant.spotId %></span>
+          </td>
+          <td class="token">
+            <span class="badge"><%= restaurant.personalToken %></span>
           </td>
           <td class="count-cell"><%= restaurant._count.waiters %></td>
           <td class="count-cell"><%= restaurant._count.admins %></td>
