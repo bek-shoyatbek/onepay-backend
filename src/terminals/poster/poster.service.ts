@@ -110,6 +110,7 @@ export class PosterService {
     dateFrom?: string,
     dateTo?: string,
   ): Promise<Transaction[]> {
+
     console.log("dateFrom: " + dateFrom);
     console.log("dateTo: " + dateTo);
     try {
@@ -133,7 +134,7 @@ export class PosterService {
   }
 
   private async getTodayTransactions(resToken: string) {
-    const todayYYYYMMDD = new Date().toISOString().split('T')[0];
+    const todayYYYYMMDD = new Date().toISOString().split('T')[0].replace(/-/g, '');
     return await this.getTransactions(resToken, todayYYYYMMDD, todayYYYYMMDD);
   }
 
