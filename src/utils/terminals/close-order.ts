@@ -25,6 +25,7 @@ export const closeOrder = async (
           userId: transaction.userId,
           spotTabletId: transaction.spotTabletId,
           accountUrl: transaction.accountUrl,
+          orderId: transaction.orderId
         };
 
         const response = await posterService.closeTransaction(payload);
@@ -36,7 +37,6 @@ export const closeOrder = async (
         console.error(err);
         throw new InternalServerErrorException("Couldn't close order");
       }
-      break;
     }
     case 'rkeeper': {
       const rkeeperService = new RkeeperService(

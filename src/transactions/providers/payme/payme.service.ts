@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TransactionMethods } from './constants/transaction-methods';
 import { CheckPerformTransactionDto } from './dto/check-perform-transaction.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -16,6 +16,7 @@ import { closeOrder } from '../../../utils/terminals';
 
 @Injectable()
 export class PaymeService {
+  private readonly logger = new Logger(PaymeService.name);
   constructor(private readonly prismaService: PrismaService) { }
 
   async handleTransactionMethods(reqBody: RequestBody) {
@@ -254,14 +255,14 @@ export class PaymeService {
         id: performTransactionDto.params.id,
       };
     }
-
+    //  Only close order if transaction is not tip only
     if (!transaction.isTipOnly) {
       const closeOrderResult = await closeOrder(
         transaction.terminal,
         transaction,
       );
 
-      console.log('closeOrderResult: ', closeOrderResult);
+      this.logger.log(`closeOrderResult: ${closeOrderResult}`);
     }
 
     const performTime = new Date();

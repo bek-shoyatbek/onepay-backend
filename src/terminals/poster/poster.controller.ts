@@ -20,6 +20,8 @@ export class PosterController {
 
   @Put('close-transaction')
   async closeTransaction(@Body() closeTransactionDto: CloseTransactionDto) {
+    console.log("closeTransactionDto: ", closeTransactionDto);
     return this.posterService.closeTransaction(closeTransactionDto);
   }
+
 }

@@ -19,6 +19,10 @@ export class CloseTransactionDto {
 
   @IsString()
   @IsNotEmpty()
+  orderId: string;
+
+  @IsString()
+  @IsNotEmpty()
   accountUrl: string;
 
   @IsString()

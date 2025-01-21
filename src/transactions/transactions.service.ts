@@ -19,7 +19,7 @@ export class TransactionsService {
         provider: createTransactionDto.provider,
         userId: createTransactionDto.userId,
         orderId:
-          createTransactionDto?.orderId ||
+          createTransactionDto.orderId ||
           'poster_' + Math.floor(Math.random() * 1000000),
         tip: createTransactionDto.tip,
         isTipOnly,

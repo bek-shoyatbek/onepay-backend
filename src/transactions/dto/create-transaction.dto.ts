@@ -9,7 +9,7 @@ import {
 export class CreateTransactionDto {
   @IsString()
   @IsOptional()
-  orderId?: string;
+  orderId: string;
 
   @IsString()
   userId: string;
