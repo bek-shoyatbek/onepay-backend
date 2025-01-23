@@ -51,54 +51,24 @@ export class RkeeperService {
    * @param completeOrderParams
    */
   async closeOrder(completeOrderParams: CompleteOrderParams): Promise<boolean> {
-    console.log('Initiating closeOrder with completeOrderParams: ', completeOrderParams);
-
+    console.log('completeOrderParams: ', completeOrderParams);
     const xmlBodyStr = `<RK7Query>
-      <RK7CMD CMD="PayOrder">
-        <Order guid="{${completeOrderParams.orderId}}"/>
-        <Cashier code="7"/>
-        <Station code="7"/>
-        <Payment id="1" amount="${completeOrderParams.total}"/>
-      </RK7CMD>
-    </RK7Query>`;
+	<RK7CMD CMD="PayOrder">
+		<Order guid="{${completeOrderParams.orderId}}"/>
+		<Cashier code="7"/>
+		<Station code="7"/>
+		<Payment id="1" amount="${completeOrderParams.total}"/>
+	</RK7CMD>
+</RK7Query>`;
 
-    console.log('Generated XML body for request: ', xmlBodyStr);
+    const { data } = await this.httpService.axiosRef.post(
+      this.apiURL,
+      xmlBodyStr,
+      this.axiosConfigs,
+    );
 
-    try {
-      console.log('Making HTTP POST request to API URL: ', this.apiURL);
-      const { data } = await this.httpService.axiosRef.post(
-        this.apiURL,
-        xmlBodyStr,
-        this.axiosConfigs,
-      );
-
-      console.log('Received response from the API: ', data);
-
-      // Assuming the data is a boolean or needs further transformation to boolean
-      if (data && typeof data === 'boolean') {
-        console.log('Order closed successfully.');
-        return data;
-      } else {
-        console.warn('Unexpected response format. Expected boolean, got: ', data);
-        return false;
-      }
-    } catch (error) {
-      if (error.response) {
-        // If the error has a response, log the response data
-        console.error('API request failed with response: ', error.response.data);
-        console.error('Error status: ', error.response.status);
-      } else if (error.request) {
-        // If the error has no response but there was a request sent
-        console.error('No response received from API. Request sent: ', error.request);
-      } else {
-        // If the error is something else, like a setup error
-        console.error('Unexpected error occurred: ', error.message);
-      }
-      return false;
-    }
+    return data;
   }
-
-
 
   /**
    * This function returns order details
