@@ -7,13 +7,14 @@ import { HttpService } from '@nestjs/axios';
 import { PosterService } from '../../terminals/poster/poster.service';
 import { CloseTransactionDto } from '../../terminals/poster/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Terminal } from 'src/shared/enums';
 
 export const closeOrder = async (
   terminal: string,
   transaction: Transaction,
 ) => {
   switch (terminal) {
-    case 'poster': {
+    case Terminal.Poster: {
       try {
 
         const posterService = new PosterService(new ConfigService(), new PrismaService());
@@ -38,7 +39,7 @@ export const closeOrder = async (
         throw new InternalServerErrorException("Couldn't close order");
       }
     }
-    case 'rkeeper': {
+    case Terminal.Rkeeper: {
       const rkeeperService = new RkeeperService(
         new ConfigService(),
         new HttpService(),
@@ -57,7 +58,7 @@ export const closeOrder = async (
       }
       break;
     }
-    case 'iiko': {
+    case Terminal.Iiko: {
       // TODO
       throw new Error('Not implemented');
     }

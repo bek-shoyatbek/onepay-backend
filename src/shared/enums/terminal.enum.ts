@@ -1,5 +1,5 @@
 export enum Terminal {
-  POSTER = 'poster',
-  RKEEPER = 'rkeeper',
-  IIKO = 'iiko',
+  Poster = 'poster',
+  Rkeeper = 'rkeeper.com',
+  Iiko = 'iiko',
 }

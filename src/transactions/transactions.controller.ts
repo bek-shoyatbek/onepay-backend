@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto';
+import { Terminal } from 'src/shared/enums';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -23,11 +24,11 @@ export class TransactionsController {
   @HttpCode(HttpStatus.OK)
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
     console.log('createTransactionDto: ', createTransactionDto);
-    if (createTransactionDto.terminal?.includes('rkeeper')) {
+    if (createTransactionDto.terminal == Terminal.Rkeeper) {
       createTransactionDto.total = createTransactionDto.total * 100;
     }
     createTransactionDto.tip = createTransactionDto.tip * 100;
-    
+
     return await this.transactionsService.createTransaction(
       createTransactionDto,
     );
