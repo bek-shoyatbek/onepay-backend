@@ -13,54 +13,56 @@ export const closeOrder = async (
   terminal: string,
   transaction: Transaction,
 ) => {
-  switch (terminal) {
-    case Terminal.Poster: {
-      try {
 
-        const posterService = new PosterService(new ConfigService(), new PrismaService());
 
-        const payload: CloseTransactionDto = {
-          spotId: transaction.spotId,
-          tableId: transaction.tableId,
-          total: transaction.amount + '',
-          userId: transaction.userId,
-          spotTabletId: transaction.spotTabletId,
-          accountUrl: transaction.accountUrl,
-          orderId: transaction.orderId
-        };
+  if (terminal === Terminal.Poster) {
+    try {
+      const posterService = new PosterService(new ConfigService(), new PrismaService());
 
-        const response = await posterService.closeTransaction(payload);
-        if (response?.err_code !== 0) {
-          throw new InternalServerErrorException("Couldn't close order");
-        }
-        return true;
-      } catch (err) {
-        console.error(err);
-        throw new InternalServerErrorException("Couldn't close order");
-      }
-    }
-    case Terminal.Rkeeper: {
-      const rkeeperService = new RkeeperService(
-        new ConfigService(),
-        new HttpService(),
-      );
-      const rKeeperParams: CompleteOrderParams = {
-        orderId: transaction.orderId,
-        total: transaction.amount,
-        userId: transaction.userId,
+      const payload: CloseTransactionDto = {
         spotId: transaction.spotId,
+        tableId: transaction.tableId,
+        total: transaction.amount + '',
+        userId: transaction.userId,
+        spotTabletId: transaction.spotTabletId,
+        accountUrl: transaction.accountUrl,
+        orderId: transaction.orderId
       };
 
-      const isOrderCompleted = await rkeeperService.closeOrder(rKeeperParams);
-
-      if (!isOrderCompleted) {
-        throw new InternalServerErrorException('Order completion failed');
+      const response = await posterService.closeTransaction(payload);
+      if (response?.err_code !== 0) {
+        throw new InternalServerErrorException("Couldn't close order");
       }
-      break;
-    }
-    case Terminal.Iiko: {
-      // TODO
-      throw new Error('Not implemented');
+      return true;
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException("Couldn't close order");
     }
   }
+
+  if (terminal?.includes(Terminal.Rkeeper)) {
+    const rkeeperService = new RkeeperService(
+      new ConfigService(),
+      new HttpService(),
+    );
+    const rKeeperParams: CompleteOrderParams = {
+      orderId: transaction.orderId,
+      total: transaction.amount,
+      userId: transaction.userId,
+      spotId: transaction.spotId,
+    };
+
+    const isOrderCompleted = await rkeeperService.closeOrder(rKeeperParams);
+
+    if (!isOrderCompleted) {
+      throw new InternalServerErrorException('Order completion failed');
+    }
+  }
+  if (terminal === Terminal.Iiko) {
+    // TODO
+    throw new Error('Not implemented');
+  }
+
+  throw new InternalServerErrorException('Terminal not found');
 };
+
