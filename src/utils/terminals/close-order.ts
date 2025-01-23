@@ -27,7 +27,6 @@ export const closeOrder = async (
           accountUrl: transaction.accountUrl,
           orderId: transaction.orderId
         };
-        console.log("payload: ", payload);
 
         const response = await posterService.closeTransaction(payload);
         if (response?.err_code !== 0) {

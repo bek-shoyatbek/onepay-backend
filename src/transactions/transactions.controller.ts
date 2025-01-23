@@ -23,6 +23,9 @@ export class TransactionsController {
   @HttpCode(HttpStatus.OK)
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
     console.log('createTransactionDto: ', createTransactionDto);
+    if (createTransactionDto.terminal === 'rkeeper') {
+      createTransactionDto.total = createTransactionDto.total * 100;
+    }
     createTransactionDto.tip = createTransactionDto.tip * 100;
 
     return await this.transactionsService.createTransaction(
